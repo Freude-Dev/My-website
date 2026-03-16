@@ -1,0 +1,64 @@
+{
+  "testimonials": [
+    {
+        "id": 1,
+        "name": "Alice Johnson",
+        "role": "CEO, Tech Innovators",
+        "photo": "/images/testimonials/alice.jpg",
+        "testimonial": {
+            "title": "It's all about speed",
+            "text": "This service transformed our business. The team was professional and delivered beyond our expectations.",
+            "feedback": "Fast, reliable, and efficient. Highly recommended!",
+            "rating": 5
+        }
+    },
+        {
+        "id": 2,
+        "name": "Mark Thompson",
+        "role": "CTO, Future Solutions",
+        "photo": "/images/testimonials/mark.jpg",
+        "testimonial": {
+            "title": "Exceptional Quality",
+            "text": "A game-changer in our industry. Their innovative approach and dedication are unmatched.",
+            "feedback": "Amazing people to work with. Very fast and professional partner.",
+            "rating": 4.5
+            }  
+        },
+    {
+        "id": 3,
+        "name": "Sophie Lee",
+        "role": "Founder, Creative Minds",
+        "photo": "/images/testimonials/sophie.jpg",
+        "testimonial": {
+            "title": "Incredible Results",
+            "text": "Working with them was a pleasure. They understood our vision and brought it to life beautifully.",
+            "feedback": "Fast, reliable, and efficient. Highly recommended!",
+            "rating": 4.5
+        }
+    },
+    {
+        "id": 4,
+        "name": "David Kim",
+        "role": "Marketing Director, Bright Future",
+        "photo": "/images/testimonials/david.jpg",
+        "testimonial": {
+            "title": "Outstanding Service",
+            "text": "Their expertise and commitment to excellence are evident in every project they undertake.",
+            "feedback": "Amazing people to work with. Very fast and professional partner.",
+            "rating": 5
+        }
+    },
+    {
+        "id": 5,
+        "name": "Emma Wilson",
+        "role": "Product Manager, NextGen Tech",
+        "photo": "/images/testimonials/emma.jpg",
+        "testimonial": {
+            "title": "Highly Recommend",
+            "text": "Their innovative solutions and attention to detail have significantly improved our operations.",
+            "feedback": "Fast, reliable, and efficient. Highly recommended!",
+            "rating": 4
+        }
+    }
+  ]
+}

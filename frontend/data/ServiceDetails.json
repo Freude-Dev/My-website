@@ -1,0 +1,51 @@
+{
+    "services":[
+        {
+            "id":1,
+            "name": "IT Maintenance",
+            "image":"/images/IT-M.jpg",
+            "description":"We provide an optimal and complete hardware and software diagnostic before repair",
+            "subservices":["Hardware diagnostic","Software diagnostic","OS maintenance (installation and setup)","OS Updates (functional and security)","App setup"],
+            "prices":[5000,5000,5000,3000,3000],
+            "numbers":""
+        },
+        {
+            "id":2,
+            "name": "Web Design",
+            "image": "/images/W-D.jpg",
+            "description":"Logo, mobile and desktop design rendered for your virtual identity",
+            "subservices":[
+                "Brand identification",
+                "Sample Designing",
+                "Logo Mockups",
+                "Responsive pages designing"],
+            "prices":[
+                5000,
+                3000,
+                5000,
+                5000,
+                4000],
+            "numbers":""
+        },
+        {
+            "id":3,
+            "name": "Network Administration",
+            "image": "/images/N-A.jpg",
+            "description":"We promote administration, deploy and security of your network infrastructure",
+            "subservices":[
+                "Network architecture building",
+                "Network Architecture Simulation",
+                "Network Deploy and Testing",
+                "Network Security Configuration"
+            ],
+            "prices":[
+                5000,
+                30000,
+                12000,
+                4000
+            ],
+            "numbers":""
+        }
+        
+    ]
+}
