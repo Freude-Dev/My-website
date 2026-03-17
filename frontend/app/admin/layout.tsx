@@ -34,7 +34,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleLogout = async () => {
     try {
       await logoutAction();
-      localStorage.removeItem('adminToken');
       toast.success('Logged out successfully');
       router.push('/admin/login');
       router.refresh();
@@ -43,14 +42,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
+  // Clean full-screen layout for login page — no sidebar, no header
+  if (hideNavbar) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-200">
+        {children}
+      </div>
+    );
+  }
+
+  // Full admin layout with sidebar and header
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-200">
+      {/* Sidebar */}
       <aside className="w-64 border-r border-zinc-800 bg-zinc-900/50 backdrop-blur-xl hidden md:flex flex-col sticky top-0 h-screen">
         <div className="p-6 border-b border-zinc-800">
           <Link href="/" className="flex items-center gap-2 p-[10%]">
-            <Image src={logo} alt='logo' className='w-35 h-20'/>
+            <Image src={logo} alt="logo" className="w-35 h-20" />
           </Link>
         </div>
+
         <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
@@ -59,8 +70,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.href}
                 href={item.href}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive 
-                    ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20' 
+                  isActive
+                    ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20'
                     : 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100'
                 }`}
               >
@@ -73,8 +84,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
+
         <div className="p-4 border-t border-zinc-800">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-all text-left"
           >
@@ -84,15 +96,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
+      {/* Main content */}
       <main className="flex-1 flex flex-col min-w-0">
-        {!hideNavbar && (
-          <header className="h-16 border-b border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
-            <h1 className="font-semibold text-lg">
-              {menuItems.find(i => i.href === pathname)?.label || 'Dashboard'}
-            </h1>
-          </header>
-        )}
-        <div className={hideNavbar ? "p-0" : "p-8"}>
+        <header className="h-16 border-b border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
+          <h1 className="font-semibold text-lg">
+            {menuItems.find((i) => i.href === pathname)?.label || 'Dashboard'}
+          </h1>
+          <div className="flex items-center gap-3">
+            <div className="size-8 rounded-full bg-orange-600 flex items-center justify-center text-sm font-bold">
+              A
+            </div>
+          </div>
+        </header>
+
+        <div className="p-8">
           {children}
         </div>
       </main>
