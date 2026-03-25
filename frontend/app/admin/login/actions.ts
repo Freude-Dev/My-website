@@ -1,79 +1,75 @@
-"use server";
+'use server'
 
-import { cookies } from 'next/headers';
+import { cookies } from 'next/headers'
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const BACKEND_URL = 'http://localhost:5000/api';
-
-export async function loginAction(email: string, pass: string) {
-  if (!JWT_SECRET) {
-    return { success: false, message: 'Server configuration error: Missing JWT_SECRET' };
-  }
-
+export async function loginAction(email: string, password: string) {
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass }),
-    });
+      body: JSON.stringify({ email, password }),
+    })
 
-    const data = await response.json();
+    const data = await res.json()
 
-    if (response.ok && data.token) {
-      const cookieStore = await cookies();
-      cookieStore.set('admin-token', data.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24, // 24 hours
-        path: '/',
-      });
-
-      return { success: true };
+    if (!res.ok) {
+      return { success: false, message: data.message || 'Invalid credentials' }
     }
 
-    return { success: false, message: data.message || 'Invalid credentials' };
+    const cookieStore = await cookies()
+    cookieStore.set('admin-token', data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    })
+
+    return { success: true }
   } catch (error) {
-    console.error('Login action error:', error);
-    return { success: false, message: 'Could not connect to authentication server' };
+    console.error('Login error:', error)
+    return { success: false, message: 'Could not reach the server. Is the backend running?' }
   }
 }
 
 export async function logoutAction() {
-  const cookieStore = await cookies();
-  cookieStore.delete('admin-token');
+  const cookieStore = await cookies()
+  cookieStore.delete('admin-token')
 }
 
-/**
- * Securely fetches data from the backend using the httpOnly cookie.
- * This function runs on the server, so the token is never exposed to the client JS.
- */
-export async function adminFetch(path: string, options: RequestInit = {}) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('admin-token')?.value;
+type FetchOptions = {
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
+  body?: string
+}
+
+export async function adminFetch(endpoint: string, options: FetchOptions = {}) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('admin-token')?.value
 
   if (!token) {
-    return { success: false, message: 'Unauthorized', status: 401 };
+    return { success: false, message: 'Not authenticated' }
   }
 
   try {
-    const response = await fetch(`${BACKEND_URL}${path}`, {
-      ...options,
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${endpoint}`, {
+      method: options.method || 'GET',
       headers: {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-    });
+      body: options.body,
+      cache: 'no-store',
+    })
 
-    if (response.status === 204) {
-      return { success: true, status: 204 };
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { success: false, message: data.message }
     }
 
-    const data = await response.json();
-    return { success: response.ok, data, status: response.status };
+    return { success: true, data }
   } catch (error) {
-    console.error(`Error fetching ${path}:`, error);
-    return { success: false, message: 'Server connection error', status: 500 };
+    console.error('Admin fetch error:', error)
+    return { success: false, message: 'Server error' }
   }
 }
