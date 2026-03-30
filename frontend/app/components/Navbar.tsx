@@ -62,8 +62,8 @@ export default function Navbar() {
       <nav
         className="
           fixed top-[3%] flex items-center justify-between
-          w-full md:w-auto
-          mx-0 md:mx-4
+          w-[90%] md:w-auto
+          mx-2 md:mx-4
           px-4 md:px-6 py-4
           rounded-4xl md:rounded-full
           border border-slate-700
@@ -73,7 +73,7 @@ export default function Navbar() {
       >
         <Link href="/" onClick={() => setIsOpen(false)}>
           <Image src={logod} alt="Logo" className="hidden md:block w-25 h-15" />
-          <Image src={logop} alt="Logo" className="md:hidden size-8" />
+          <Image src={logop} alt="Logo" className="md:hidden w-12 h-10" />
         </Link>
 
         <div className="hidden md:flex items-center gap-6 ml-35 mr-20">

@@ -1,161 +1,130 @@
+import Image from "next/image";
 import Features from "../components/Features";
 import TeamMember from "../components/TeamMembers";
+import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <div className="py-48 flex flex-col gap-20">
-      <div>
-        <style>{`
-
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-            
-
-                * {
-
-                    font-family: 'Poppins', sans-serif;
-
-                }
-
-            `}</style>
-
-            <section className="flex flex-col md:flex-row items-center justify-center gap-50 max-md:px-4">
-
-                <div className="relative shadow-2xl shadow-orange-600/40 rounded-2xl overflow-hidden shrink-0">
-
-                    <img className="max-w-md w-full object-cover rounded-2xl"
-
-                        src="https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?q=80&w=451&h=451&auto=format&fit=crop"
-
-                        alt="" />
-
-                    <div className="flex items-center gap-1 max-w-72 absolute bottom-8 left-8 bg-white p-4 rounded-xl">
-
-                        <div className="flex -space-x-4 shrink-0">
-
-                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200" alt="image"
-
-                                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-1" />
-
-                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200" alt="image"
-
-                                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[2]" />
-
-                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&h=200&auto=format&fit=crop"
-
-                                alt="image"
-
-                                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[3]" />
-
-                            <div
-
-                                className="flex items-center justify-center text-xs  text-white size-9 rounded-full border-[3px] border-white bg-orange-600 hover:-translate-y-1 transition z-[4]">
-
-                                50+
-
-                            </div>
-
-                        </div>
-
-                        <p className="text-sm font-medium text-slate-800">Join our developer community</p>
-
-                    </div>
-
-                </div>
-
-                <div className="text-sm text-slate-600 max-w-lg">
-                    <div className="bg-gradient-to-r from-orange-600 to-amber-200 bg-clip-text">
-                      <h1 className="text-6xl uppercase font-semibold text-transparent ">About Us</h1>
-                    </div>
-
-                    <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-orange-600 to-amber-200"></div>
-
-                    <p className="mt-8 text-white">FreudeDev is a digital institution serving at IT maintainance, Web Design and Network Administration</p>
-
-                    <p className="mt-4">Whether you're launching a SaaS app, landing page, or dashboard, our collection of Tailwind
-
-                        CSS components is crafted to boost your development speed and improve user experience.</p>
-
-                    <p className="mt-4">From UI design systems to automation-ready layouts, PrebuiltUI empowers you to build
-
-                        beautifully and scale effortlessly.</p>
-
-                    <a href="#" className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition bg-gradient-to-r from-orange-600 to-amber-400 py-3 px-8 rounded-full text-white">
-
-                        <span>Read more</span>
-
-                        <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-                            <path
-
-                                d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
-
-                                fill="#fff" />
-
-                        </svg>
-
-                    </a>
-
-                </div>
-
-            </section>
-      </div>
-      <div>
-        <>
-
-            <style>{`
-
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-            
-
-
-            `}</style>
-
-            
-
-            <div className="max-w-6xl py-16 md:w-full mx-2 md:mx-auto flex flex-col items-center justify-center text-center bg-gradient-to-b from-orange-200 to-orange-400 rounded-2xl p-10 text-white">
-
-                <div className="flex flex-wrap items-center justify-center p-1 rounded-full bg-orange-600/10 backdrop-blur border border-orange-500/40 text-sm">
-
-                    <div className="flex items-center">
-
-                        <img className="size-6 md:size-7 rounded-full border-3 border-white"
-
-                            src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=50" alt="userImage1" />
-
-                        <img className="size-6 md:size-7 rounded-full border-3 border-white -translate-x-2"
-
-                            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=50" alt="userImage2" />
-
-                        <img className="size-6 md:size-7 rounded-full border-3 border-white -translate-x-4"
-
-                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=50&h=50&auto=format&fit=crop"
-
-                            alt="userImage3" />
-
-                    </div>
-
-                    <p className="-translate-x-2 font-medium">Join community of 1m+ founders </p>
-
-                </div>
-
-                <h1 className="text-4xl md:text-5xl md:leading-[60px] font-semibold max-w-xl mt-5 bg-gradient-to-r from-white to-orange-200 text-transparent bg-clip-text">Unlock your next big opportunity.</h1>
-
-                <button className="px-8 py-3 text-white bg-amber-600 hover:bg-amber-700 hover:shadow-[0_0_4px_8px] shadow-orange-300 transition-all rounded-full uppercase text-sm mt-8">
-
-                    Join Discord
-
-                </button>
-
+    <div className="py-48 flex flex-col gap-24 overflow-x-hidden">
+
+      {/* ── HERO SECTION ── */}
+      <section className="flex flex-col md:flex-row items-center justify-center gap-16 lg:gap-24 max-md:px-6 px-8">
+
+        {/* Image */}
+        <div className="relative shadow-2xl shadow-orange-600/30 rounded-2xl overflow-hidden shrink-0">
+          <Image
+            src="https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?q=80&w=451&h=451&auto=format&fit=crop"
+            alt="FreudeDev team"
+            width={451}
+            height={451}
+            className="max-w-sm w-full object-cover rounded-2xl"
+          />
+
+          {/* Community badge */}
+          <div className="flex items-center gap-3 absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur p-4 rounded-xl shadow-lg">
+            <div className="flex -space-x-3 shrink-0">
+              {[
+                "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200",
+                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200",
+                "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200",
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt="community member"
+                  className="size-8 rounded-full border-2 border-white object-cover"
+                />
+              ))}
+              <div className="flex items-center justify-center text-[10px] font-bold text-white size-8 rounded-full border-2 border-white bg-orange-600">
+                50+
+              </div>
             </div>
+            <p className="text-xs font-semibold text-slate-700 leading-tight">
+              Join our growing client community
+            </p>
+          </div>
+        </div>
 
-        </>
-      </div>
+        {/* Text */}
+        <div className="max-w-lg">
+          <p className="text-orange-500 text-xs tracking-[0.3em] uppercase font-medium mb-4">
+            — Who we are
+          </p>
+
+          <h1 className="text-5xl md:text-6xl uppercase font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-300 leading-none mb-4">
+            About Us
+          </h1>
+
+          <div className="w-20 h-[3px] rounded-full bg-gradient-to-r from-orange-600 to-amber-300 mb-8" />
+
+          <p className="text-white text-sm leading-relaxed mb-4">
+            <span className="font-bold text-orange-400">FreudeDev</span> is a digital services company specialising in IT Maintenance, Web Design, and Network Administration — delivering efficient, reliable solutions tailored to each client's needs.
+          </p>
+
+          <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+            Founded with a mission to make professional tech services accessible, we work with startups, SMEs, and institutions to build, maintain, and secure their digital infrastructure.
+          </p>
+
+          <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+            Whether you need a sleek landing page, a hardened network architecture, or a full IT audit — we bring precision and dedication to every project.
+          </p>
+
+          {/* Stats row */}
+          <div className="flex gap-8 border-t border-zinc-800 pt-8">
+            {[
+              { value: "3+",   label: "Clients" },
+              { value: "10+",  label: "Projects" },
+              { value: "2+",   label: "Years" },
+              { value: "100%", label: "Satisfaction" },
+            ].map((s, i) => (
+              <div key={i}>
+                <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">
+                  {s.value}
+                </div>
+                <div className="text-xs text-zinc-500 font-mono uppercase tracking-wider">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SERVICES CTA BANNER ── */}
+      <section className="max-w-5xl mx-auto px-4 w-full">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-600 to-amber-500 p-10 md:p-14 text-white text-center">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+            }}
+          />
+
+          <div className="relative z-10">
+            <p className="text-orange-100 text-xs tracking-[0.3em] uppercase font-medium mb-3">
+              — What we do
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black leading-tight mb-4">
+              Three services.<br />One reliable team.
+            </h2>
+            <p className="text-orange-100 text-sm max-w-md mx-auto mb-8 leading-relaxed">
+              From diagnosing hardware faults to deploying secure networks and building beautiful websites — FreudeDev covers your full digital needs.
+            </p>
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-2 bg-white text-orange-600 font-black px-8 py-3 rounded-full hover:bg-orange-50 transition-all duration-300 text-sm shadow-lg"
+            >
+              Explore our services
+              <svg width="13" height="12" viewBox="0 0 13 12" fill="none">
+                <path d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z" fill="currentColor" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES + TEAM ── */}
       <Features />
       <TeamMember />
-            
-
     </div>
-  )
+  );
 }

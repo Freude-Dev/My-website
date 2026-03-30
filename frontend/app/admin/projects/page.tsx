@@ -17,12 +17,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '../../../lib/supabase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,6 +76,7 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -137,6 +133,53 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
       toast.success('Document uploaded!');
     }
     setUploading(false);
+  };
+
+  // Upload image to Supabase Storage
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Only .jpg, .jpeg, .png, .gif, .webp files are allowed');
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setImageUploading(true);
+    const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+    const { data, error } = await supabase.storage
+      .from('project-images')
+      .upload(fileName, file);
+
+    if (error) {
+      toast.error('Image upload failed: ' + error.message);
+    } else {
+      const { data: urlData } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(data.path);
+
+      setForm((prev) => ({
+        ...prev,
+        image_url: urlData.publicUrl,
+      }));
+      toast.success('Image uploaded!');
+    }
+    setImageUploading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,21 +291,65 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             />
           </div>
 
-          {/* Image URL */}
+          {/* Thumbnail Image */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
-              <ImageIcon size={13} /> Thumbnail Image URL
+              <ImageIcon size={13} /> Thumbnail Image
             </label>
-            <input
-              name="image_url"
-              value={form.image_url}
-              onChange={handleChange}
-              placeholder="https://example.com/screenshot.jpg"
-              className="w-full bg-zinc-950 border border-zinc-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-600"
-            />
+            
+            {/* Image URL Input */}
+            <div className="space-y-2">
+              <input
+                name="image_url"
+                value={form.image_url}
+                onChange={handleChange}
+                placeholder="Or enter image URL directly..."
+                className="w-full bg-zinc-950 border border-zinc-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-600"
+              />
+            </div>
+
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <label className="flex flex-col items-center justify-center gap-2 p-4 bg-zinc-950 border border-dashed border-zinc-700 hover:border-orange-500/50 rounded-xl cursor-pointer transition-all group">
+                {imageUploading ? (
+                  <Loader2 size={20} className="animate-spin text-orange-400" />
+                ) : (
+                  <Upload size={20} className="text-zinc-500 group-hover:text-orange-400 transition-colors" />
+                )}
+                <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors text-center">
+                  {imageUploading ? 'Uploading image...' : 'Click to upload image\n.jpg, .jpeg, .png, .gif, .webp (max 5MB)'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={imageUploading}
+                />
+              </label>
+            </div>
+
+            {/* Image Preview */}
             {form.image_url && (
-              <div className="rounded-xl overflow-hidden border border-zinc-800 h-28 mt-1">
-                <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+              <div className="space-y-2">
+                <div className="rounded-xl overflow-hidden border border-zinc-800 h-32">
+                  <img 
+                    src={form.image_url} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      toast.error('Failed to load image preview');
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((p) => ({ ...p, image_url: '' }))}
+                  className="text-xs text-zinc-500 hover:text-red-400 transition-colors"
+                >
+                  Remove image
+                </button>
               </div>
             )}
           </div>
@@ -392,7 +479,7 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             </button>
             <button
               type="submit"
-              disabled={loading || uploading}
+              disabled={loading || uploading || imageUploading}
               className="flex-1 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-orange-600/20"
             >
               {loading ? (
@@ -505,8 +592,114 @@ export default function AdminProjects() {
           })}
         </div>
 
-        {/* Table */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+        {/* ── MOBILE CARDS (visible on sm and below) ── */}
+        <div className="md:hidden space-y-3">
+          {filtered.length === 0 ? (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl text-center py-16 text-zinc-500">
+              <FolderKanban size={32} className="mx-auto mb-3 opacity-30" />
+              <p>No projects found</p>
+              <button
+                onClick={() => setShowModal(true)}
+                className="mt-3 text-orange-500 hover:underline text-sm"
+              >
+                Add your first project →
+              </button>
+            </div>
+          ) : (
+            filtered.map((project) => {
+              const config = getCategoryConfig(project.category);
+              return (
+                <div
+                  key={project.id}
+                  className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3"
+                >
+                  {/* Top row: image + name + actions */}
+                  <div className="flex items-start gap-3">
+                    <div className="size-12 rounded-xl overflow-hidden bg-zinc-800 shrink-0 border border-zinc-700">
+                      {project.image_url ? (
+                        <img src={project.image_url} alt={project.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon size={16} className="text-zinc-600" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{project.name}</p>
+                      <p className="text-zinc-500 text-xs truncate mt-0.5">{project.description}</p>
+                    </div>
+                    {/* Action buttons always visible on mobile */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => { setEditProject(project); setShowModal(true); }}
+                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all"
+                        title="Edit"
+                      >
+                        <Eye size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id)}
+                        className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                        title="Delete"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom row: category + year + link + toggle */}
+                  <div className="flex items-center gap-2 flex-wrap border-t border-zinc-800 pt-3">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${config.bg} ${config.color}`}>
+                      <config.icon size={10} />
+                      {config.label}
+                    </span>
+                    <span className="text-zinc-400 font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-zinc-800">
+                      {project.year}
+                    </span>
+                    {project.category === 'Web Design' && project.framer_url ? (
+                      <a
+                        href={project.framer_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-400/10 text-orange-400 border border-orange-400/20"
+                      >
+                        <Globe size={10} /> View Site <ExternalLink size={9} />
+                      </a>
+                    ) : project.document_url ? (
+                      <a
+                        href={project.document_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20 max-w-[140px]"
+                      >
+                        <FileText size={10} className="shrink-0" />
+                        <span className="truncate">{project.document_name || 'Document'}</span>
+                      </a>
+                    ) : null}
+                    {/* Visibility toggle */}
+                    <button
+                      onClick={() => handleToggleVisible(project)}
+                      className="relative inline-flex items-center cursor-pointer ml-auto"
+                      title={project.is_visible ? 'Click to hide' : 'Click to show'}
+                    >
+                      <div className={`w-9 h-5 rounded-full transition-colors ${project.is_visible ? 'bg-orange-600' : 'bg-zinc-700'}`}>
+                        <div className={`absolute top-0.5 left-0.5 bg-white rounded-full h-4 w-4 shadow transition-transform ${project.is_visible ? 'translate-x-4' : 'translate-x-0'}`} />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+          {filtered.length > 0 && (
+            <p className="text-zinc-600 text-xs text-center pt-1">
+              Showing {filtered.length} of {projects.length} projects
+            </p>
+          )}
+        </div>
+
+        {/* ── DESKTOP TABLE (hidden on mobile) ── */}
+        <div className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -538,8 +731,6 @@ export default function AdminProjects() {
                     const config = getCategoryConfig(project.category);
                     return (
                       <tr key={project.id} className="hover:bg-zinc-800/40 transition-colors group">
-
-                        {/* Project info */}
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="size-10 rounded-xl overflow-hidden bg-zinc-800 shrink-0 border border-zinc-700">
@@ -557,40 +748,24 @@ export default function AdminProjects() {
                             </div>
                           </div>
                         </td>
-
-                        {/* Category badge */}
                         <td className="px-5 py-4">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.bg} ${config.color}`}>
                             <config.icon size={11} />
                             {config.label}
                           </span>
                         </td>
-
-                        {/* Year */}
                         <td className="px-5 py-4">
                           <span className="text-zinc-300 font-mono font-bold">{project.year}</span>
                         </td>
-
-                        {/* Link / Doc */}
                         <td className="px-5 py-4">
                           {project.category === 'Web Design' && project.framer_url ? (
-                            <a
-                              href={project.framer_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-orange-400/10 text-orange-400 border border-orange-400/20 hover:bg-orange-400/20 transition-all"
-                            >
-                              <Globe size={11} />
-                              View Site
-                              <ExternalLink size={10} />
+                            <a href={project.framer_url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-orange-400/10 text-orange-400 border border-orange-400/20 hover:bg-orange-400/20 transition-all">
+                              <Globe size={11} /> View Site <ExternalLink size={10} />
                             </a>
                           ) : project.document_url ? (
-                            <a
-                              href={project.document_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20 hover:bg-blue-400/20 transition-all max-w-[160px]"
-                            >
+                            <a href={project.document_url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20 hover:bg-blue-400/20 transition-all max-w-[160px]">
                               <FileText size={11} className="shrink-0" />
                               <span className="truncate">{project.document_name || 'Document'}</span>
                             </a>
@@ -598,35 +773,23 @@ export default function AdminProjects() {
                             <span className="text-zinc-600 text-xs">—</span>
                           )}
                         </td>
-
-                        {/* Visible toggle */}
                         <td className="px-5 py-4">
-                          <button
-                            onClick={() => handleToggleVisible(project)}
-                            className={`relative inline-flex items-center cursor-pointer`}
-                            title={project.is_visible ? 'Click to hide' : 'Click to show'}
-                          >
+                          <button onClick={() => handleToggleVisible(project)}
+                            className="relative inline-flex items-center cursor-pointer"
+                            title={project.is_visible ? 'Click to hide' : 'Click to show'}>
                             <div className={`w-9 h-5 rounded-full transition-colors ${project.is_visible ? 'bg-orange-600' : 'bg-zinc-700'}`}>
                               <div className={`absolute top-0.5 left-0.5 bg-white rounded-full h-4 w-4 shadow transition-transform ${project.is_visible ? 'translate-x-4' : 'translate-x-0'}`} />
                             </div>
                           </button>
                         </td>
-
-                        {/* Actions */}
                         <td className="px-5 py-4">
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => { setEditProject(project); setShowModal(true); }}
-                              className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all"
-                              title="Edit"
-                            >
+                            <button onClick={() => { setEditProject(project); setShowModal(true); }}
+                              className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all" title="Edit">
                               <Eye size={15} />
                             </button>
-                            <button
-                              onClick={() => handleDelete(project.id)}
-                              className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                              title="Delete"
-                            >
+                            <button onClick={() => handleDelete(project.id)}
+                              className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-all" title="Delete">
                               <Trash2 size={15} />
                             </button>
                           </div>
@@ -638,16 +801,10 @@ export default function AdminProjects() {
               </tbody>
             </table>
           </div>
-
-          {/* Footer */}
           {filtered.length > 0 && (
             <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-950/30 flex items-center justify-between">
-              <p className="text-zinc-500 text-xs">
-                Showing {filtered.length} of {projects.length} projects
-              </p>
-              <p className="text-zinc-600 text-xs">
-                Hover a row to see actions
-              </p>
+              <p className="text-zinc-500 text-xs">Showing {filtered.length} of {projects.length} projects</p>
+              <p className="text-zinc-600 text-xs">Hover a row to see actions</p>
             </div>
           )}
         </div>
