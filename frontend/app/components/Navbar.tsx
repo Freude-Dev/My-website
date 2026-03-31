@@ -67,7 +67,7 @@ export default function Navbar() {
           px-4 md:px-6 py-4
           rounded-4xl md:rounded-full
           border border-slate-700
-          bg-black/70 backdrop-blur-xl
+          bg-dark backdrop-blur-xl
           text-white text-sm
         "
       >

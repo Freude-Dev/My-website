@@ -33,21 +33,19 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Client-side fetch helper — reads JWT from cookie and calls the backend
+// Client-side fetch helper — uses a server action to attach the httpOnly token
+// The admin-token cookie is httpOnly so document.cookie cannot read it.
+// We call a dedicated Next.js API route that reads the cookie server-side and proxies the request.
 async function apiFetch(endpoint: string, options: RequestInit = {}) {
-  // Read token from cookie
-  const token = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('admin-token='))
-    ?.split('=')[1];
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...((options.headers as Record<string, string>) || {}),
-    },
+  const res = await fetch('/api/admin-proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      endpoint,
+      method: (options.method as string) || 'GET',
+      body: options.body ? JSON.parse(options.body as string) : undefined,
+    }),
+    credentials: 'include',
   });
 
   const data = await res.json();
@@ -216,7 +214,7 @@ function AddProjectModal({
       onClose();
     } catch (err: any) {
       console.error('Insert error:', err);
-      toast.error(`Failed: ${err.message}`);
+      toast.error(`Failed to add project: ${err.message}`);
     }
     setLoading(false);
   };
@@ -622,7 +620,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {showAddProject && (
         <AddProjectModal
           onClose={() => setShowAddProject(false)}
-          onSuccess={() => router.refresh()}
+          onSuccess={() => {
+            // Only refresh if we're on the projects page, otherwise do nothing
+            if (pathname === '/admin/projects') {
+              // Use a more targeted refresh that won't redirect
+              window.location.reload();
+            }
+          }}
         />
       )}
     </>

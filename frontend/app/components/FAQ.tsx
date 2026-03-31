@@ -6,20 +6,28 @@ export default function FAQ() {
 
     const faqs = [
         {
-            question: "How to use this component?",
-            answer: "To use this component, you need to import it in your project and use it in your JSX code. Here's an example of how to use it:",
+            question: "What services do you offer?",
+            answer: "I offer comprehensive web development, IT services, and network administration solutions. This includes custom website design, full-stack development, and IT infrastructure management.",
         },
         {
-            question: "Are there any other components available?",
-            answer: "Yes, there are many other components available in this library. You can find them in the 'Components' section of the website.",
+            question: "How long does a typical project take?",
+            answer: "Project timelines vary depending on complexity. A simple website typically takes 2-4 weeks, while more complex applications can take 6-12 weeks. I'll provide a detailed timeline during our initial consultation.",
         },
         {
-            question: "Are components responsive?",
-            answer: "Yes, all components are responsive and can be used on different screen sizes.",
+            question: "Do you provide ongoing support and maintenance?",
+            answer: "Yes, I offer ongoing support and maintenance packages to ensure your website or application continues to run smoothly. This includes updates, security patches, and performance optimization.",
         },
         {
-            question: "Can I customize the components?",
-            answer: "Yes, you can customize the components by passing props to them. You can find more information about customizing components in the 'Customization' section of the website.",
+            question: "What technologies do you work with?",
+            answer: "I work with modern web technologies including React, Next.js, TypeScript, Node.js, and various database systems. I also have expertise in network administration and IT infrastructure management.",
+        },
+        {
+            question: "How do you handle project pricing?",
+            answer: "Pricing is based on project scope, complexity, and timeline. I provide detailed quotes after understanding your specific requirements. Fixed-price and hourly rates are both available depending on the project type.",
+        },
+        {
+            question: "Can you help with existing website updates?",
+            answer: "Absolutely! I can help update, maintain, or improve existing websites. Whether you need a simple content update or a complete redesign, I can work with your current setup.",
         },
     ];
     return (
@@ -31,17 +39,17 @@ export default function FAQ() {
                     font-family: 'Poppins', sans-serif;
                 }
             `}</style>
-            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-center gap-32 px-4 md:px-0 my-40">
+            <div className="max-w-[200vw] mx-auto flex flex-col md:flex-row items-start justify-center gap-32 px-2 md:px-0 my-40">
                 <img
-                    className="max-w-sm w-full rounded-xl h-auto"
+                    className="max-w-xl w-full rounded-xl h-auto"
                     src="https://images.unsplash.com/photo-1555212697-194d092e3b8f?q=80&w=830&h=844&auto=format&fit=crop"
                     alt=""
                 />
-                <div>
-                    <p className="text-indigo-600 text-sm font-medium">FAQ's</p>
+                <div className="flex flex-col gap-4">
+                    <p className="text-orange-500 text-sm font-medium">FAQ's</p>
                     <h1 className="text-3xl font-semibold">Looking for answer?</h1>
                     <p className="text-sm text-slate-500 mt-2 pb-4">
-                        Ship Beautiful Frontends Without the Overhead — Customizable, Scalable and Developer-Friendly UI Components.
+                        
                     </p>
                     {faqs.map((faq, index) => (
                         <div className="border-b border-slate-200 py-4 cursor-pointer" key={index} onClick={() => setOpenIndex(openIndex === index ? null : index)}>

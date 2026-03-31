@@ -346,7 +346,7 @@ export default function Service() {
         handleClose();
       } else {
         const data = await res.json();
-        alert(`❌ Failed to send: ${data.message}`);
+        alert(`❌ Failed to send: ${data.message || 'Unknown error occurred'}`);
       }
     } catch (err) {
       alert("❌ Could not reach the server. Is the backend running?");
@@ -384,7 +384,6 @@ export default function Service() {
         }
       `}</style>
 
-      {/* PAGE HEADER */}
       <div className="w-full max-w-7xl mx-auto px-6 mb-16">
         <div className="flex items-end justify-between border-b border-zinc-800 pb-8">
           <div>
@@ -400,7 +399,6 @@ export default function Service() {
         </div>
       </div>
 
-      {/* SERVICE CARDS */}
       <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {data.services.map((item, i) => (
           <button
@@ -555,7 +553,6 @@ export default function Service() {
                     </>
                   )}
 
-                  {/* ── STEP 2: Contact form ── */}
                   {step === "contact" && (
                     <form onSubmit={handleGeneratePDF} className="flex flex-col h-full">
                       <div className="flex items-center justify-between mb-8">

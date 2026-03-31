@@ -29,6 +29,7 @@ type Project = {
   description: string;
   year: number;
   category: Category;
+  framer_url?: string;
 };
 
 const CATEGORIES: {
@@ -265,6 +266,7 @@ export default function ProjectsPage() {
           box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         section::-webkit-scrollbar { display: none; }
+        aside::-webkit-scrollbar { display: none; }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -272,17 +274,185 @@ export default function ProjectsPage() {
         .cat-enter { animation: fadeIn 0.35s ease forwards; }
       `}</style>
 
-      <div ref={pageRef} className="h-[calc(100vh-80px)] mt-20 mx-4 md:mx-8 lg:mx-40 rounded-2xl overflow-hidden flex bg-black text-white border border-zinc-800/60">
+      {/* ── MOBILE LAYOUT ── */}
+      <div className="md:hidden flex flex-col bg-black text-white min-h-screen mt-16">
 
-        
-        <aside className="w-full min-w-[20vw] md:w-[300px] shrink-0 flex flex-col px-2 md:px-8 py-16 border-r border-zinc-800 relative overflow-hidden">
+        {/* Mobile Header */}
+        <div className="relative px-5 pt-16 pb-4 border-b border-zinc-800/60">
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: "linear-gradient(rgba(249,115,22,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.07) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }} />
+          <div className="scanline" />
+          <div className="relative z-10">
+            <p className="text-orange-500 text-[10px] tracking-[0.3em] uppercase font-medium mb-2">— Portfolio</p>
+            <h1 className="text-4xl font-black leading-none tracking-tight">
+              Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">Work</span>
+            </h1>
+            <div className="flex items-center gap-4 mt-3">
+              <span className="text-xs text-zinc-500 font-mono">{projects.length} projects total</span>
+              <span className="text-xs font-mono" style={{ color: catConfig.lineFrom }}>
+                {filtered.length} in {catConfig.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Category Tabs */}
+        <div className="flex gap-2 px-4 py-3 border-b border-zinc-800/60 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          {CATEGORIES.map((cat) => {
+            const count = projects.filter((p) => p.category === cat.value).length;
+            const isActive = activeCategory === cat.value;
+            return (
+              <button
+                key={cat.value}
+                onClick={() => jumpToCategory(cat.value)}
+                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all duration-300 ${
+                  isActive ? `${cat.activeBg} ${cat.activeBorder} text-white` : "border-zinc-800 text-zinc-500"
+                }`}
+              >
+                <span>{cat.icon}</span>
+                <span className="text-xs">{cat.label}</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${isActive ? "bg-black/30" : "bg-zinc-800"}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Mobile Year Filter (horizontal pills) */}
+        {!loading && years.length > 1 && (
+          <div className="flex gap-2 px-4 py-2.5 border-b border-zinc-800/40 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            <span className="text-[10px] font-mono text-zinc-700 uppercase tracking-wider self-center shrink-0">Year:</span>
+            {years.map((year) => {
+              const isActive = activeYear === year;
+              return (
+                <button
+                  key={year}
+                  onClick={() => jumpToYear(year)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${
+                    isActive ? "text-white" : "text-zinc-600 bg-zinc-900"
+                  }`}
+                  style={isActive ? { background: catConfig.lineFrom + "25", color: catConfig.lineFrom, border: `1px solid ${catConfig.lineFrom}40` } : {}}
+                >
+                  {year}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Mobile Scrollable Content */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 pb-24"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {loading && (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <div className="w-10 h-10 rounded-full border-4 border-zinc-800 border-t-orange-500 animate-spin" />
+              <p className="text-zinc-600 text-sm font-mono">Loading projects...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex flex-col items-center justify-center h-64 gap-3 text-center">
+              <div className="text-4xl">⚠️</div>
+              <p className="text-red-400 font-semibold text-sm">{error}</p>
+              <button onClick={() => window.location.reload()}
+                className="text-xs font-mono text-orange-500 border border-orange-500/30 px-4 py-2 rounded-lg">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <div key={activeCategory} className="cat-enter pt-4">
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-600 text-center">
+                  <span className="text-5xl opacity-20">{catConfig.icon}</span>
+                  <p className="text-sm font-mono">No {catConfig.label} projects yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {years.map((year) => (
+                    <div key={year} ref={(el) => { if (el) yearRefs.current.set(year, el); }}>
+                      {/* Year marker */}
+                      <div className="flex items-center gap-3 mb-5 mt-2">
+                        <div className="h-px flex-1" style={{ background: `linear-gradient(to right, ${catConfig.lineFrom}40, transparent)` }} />
+                        <span className="text-lg font-black px-3 py-1 rounded-full border text-sm"
+                          style={{ borderColor: catConfig.lineFrom + "40", color: catConfig.lineFrom }}>
+                          {year}
+                        </span>
+                        <div className="h-px flex-1" style={{ background: `linear-gradient(to left, ${catConfig.lineFrom}40, transparent)` }} />
+                      </div>
+
+                      <div className="space-y-4">
+                        {byYear[year].map((item, index) => {
+                          const globalIdx = flatFiltered.findIndex((p) => p.id === item.id);
+                          return (
+                            <div key={item.id} className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
+                              <div className="relative aspect-square w-full bg-zinc-900">
+                                {item.image_url ? (
+                                  <Image src={item.image_url} alt={item.name} fill className="object-contain" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+                                <div className="absolute top-3 left-3 right-3 flex justify-between">
+                                  <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-black/60 border border-zinc-700 text-zinc-400">
+                                    #{String(globalIdx + 1).padStart(2, "0")}
+                                  </span>
+                                  <span className="text-[10px] font-mono px-2 py-1 rounded-lg bg-black/60 border text-xs font-bold"
+                                    style={{ borderColor: catConfig.lineFrom + "40", color: catConfig.lineFrom }}>
+                                    {item.year}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <div className="flex items-start justify-between gap-2">
+                                  <h3 className="text-base font-black text-white leading-tight">{item.name}</h3>
+                                  <div className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: catConfig.lineFrom }} />
+                                </div>
+                                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">{item.description}</p>
+                                {item.framer_url && (
+                                  <a 
+                                    href={item.framer_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                                  >
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41 1.41L10 14.17V7h2v7.17l3.59-3.58L17 12l-5 5z"/>
+                                    </svg>
+                                    View Project
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div ref={pageRef} className="hidden md:flex h-[calc(100vh-80px)] mt-20 mx-4 md:mx-8 lg:mx-40 overflow-hidden bg-black text-white">
+
+        {/* LEFT PANEL */}
+        <aside className="w-[300px] shrink-0 flex flex-col px-8 py-16 border-r border-zinc-800 relative overflow-hidden" style={{ scrollbarWidth: "none" }}>
           <div className="absolute inset-0 opacity-40" style={{
             backgroundImage: "linear-gradient(rgba(249,115,22,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.05) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }} />
           <div className="scanline" />
 
-          {/* Header */}
           <div className="relative z-10 mb-10">
             <p className="text-orange-500 text-xs tracking-[0.3em] uppercase font-medium mb-4">— Portfolio</p>
             <h1 className="text-5xl font-black leading-none tracking-tight">
@@ -292,31 +462,8 @@ export default function ProjectsPage() {
             <div className="w-10 h-1 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full mt-5" />
           </div>
 
-          {/* Category filter */}
           <nav className="relative z-10 flex flex-col gap-2">
             <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-2">Category</p>
-            <div className="md:hidden flex gap-2 overflow-x-auto pb-2">
-              {CATEGORIES.map((cat) => {
-                const count = projects.filter((p) => p.category === cat.value).length;
-                const isActive = activeCategory === cat.value;
-                return (
-                  <button
-                    key={cat.value}
-                    onClick={() => jumpToCategory(cat.value)}
-                    className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all duration-300 text-center whitespace-nowrap ${
-                      isActive ? `${cat.activeBg} ${cat.activeBorder}` : "border-transparent hover:border-zinc-800 hover:bg-zinc-900/60"
-                    }`}
-                  >
-                    <div className={`text-xs font-black transition-colors duration-300 ${isActive ? cat.color : "text-zinc-500 group-hover:text-zinc-300"}`}>
-                      {cat.icon}
-                    </div>
-                    <div className={`text-[10px] font-mono transition-colors duration-300 ${isActive ? "text-zinc-400" : "text-zinc-700 group-hover:text-zinc-500"}`}>
-                      {count}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
             {CATEGORIES.map((cat) => {
               const count    = projects.filter((p) => p.category === cat.value).length;
               const isActive = activeCategory === cat.value;
@@ -324,22 +471,19 @@ export default function ProjectsPage() {
                 <button
                   key={cat.value}
                   onClick={() => jumpToCategory(cat.value)}
-                  className={`group flex items-center justify-between px-3 md:px-4 py-3 rounded-xl border transition-all duration-300 text-left ${
+                  className={`group flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-300 text-left ${
                     isActive ? `${cat.activeBg} ${cat.activeBorder}` : "border-transparent hover:border-zinc-800 hover:bg-zinc-900/60"
                   }`}
                 >
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-1 h-6 md:h-7 rounded-full transition-all duration-300"
-                      style={isActive
-                        ? { background: `linear-gradient(to bottom, ${cat.lineFrom}, ${cat.lineTo})` }
-                        : { background: "#27272a" }
-                      }
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-7 rounded-full transition-all duration-300"
+                      style={isActive ? { background: `linear-gradient(to bottom, ${cat.lineFrom}, ${cat.lineTo})` } : { background: "#27272a" }}
                     />
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
+                    <div>
                       <div className={`text-sm font-black transition-colors duration-300 ${isActive ? cat.color : "text-zinc-500 group-hover:text-zinc-300"}`}>
-                        {cat.icon} <span className="hidden md:inline">{cat.label}</span>
+                        {cat.icon} {cat.label}
                       </div>
-                      <div className={`text-[10px] font-mono mt-0.5 md:mt-0 transition-colors duration-300 ${isActive ? "text-zinc-400" : "text-zinc-700 group-hover:text-zinc-500"}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 transition-colors duration-300 ${isActive ? "text-zinc-400" : "text-zinc-700 group-hover:text-zinc-500"}`}>
                         {count} project{count !== 1 ? "s" : ""}
                       </div>
                     </div>
@@ -350,38 +494,27 @@ export default function ProjectsPage() {
             })}
           </nav>
 
-          {/* Year jump nav — only shown when there are years */}
           {!loading && years.length > 0 && (
             <nav className="relative z-10 flex flex-col gap-1 mt-6">
               <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-2">Jump to year</p>
               {years.map((year) => {
                 const isActive = activeYear === year;
                 return (
-                  <button
-                    key={year}
-                    onClick={() => jumpToYear(year)}
-                    className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 rounded-lg border transition-all duration-200 text-left ${
+                  <button key={year} onClick={() => jumpToYear(year)}
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg border transition-all duration-200 text-left ${
                       isActive ? "border-zinc-700 bg-zinc-900/60" : "border-transparent hover:border-zinc-800 hover:bg-zinc-900/40"
                     }`}
                   >
-                    <div className="w-1 h-3 md:h-4 rounded-full transition-all duration-200"
-                      style={isActive ? { background: catConfig.lineFrom } : { background: "#3f3f46" }}
-                    />
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
-                      <span className={`text-lg md:text-xl font-black tracking-tight transition-colors duration-200 ${
-                        isActive ? "text-white" : "text-zinc-600 hover:text-zinc-400"
-                      }`}>{year}</span>
-                      <span className="text-[10px] font-mono text-zinc-700 md:ml-auto">
-                        {byYear[year]?.length ?? 0}
-                      </span>
-                    </div>
+                    <div className="w-1 h-4 rounded-full transition-all duration-200"
+                      style={isActive ? { background: catConfig.lineFrom } : { background: "#3f3f46" }} />
+                    <span className={`text-lg font-black tracking-tight transition-colors duration-200 ${isActive ? "text-white" : "text-zinc-600"}`}>{year}</span>
+                    <span className="text-[10px] font-mono text-zinc-700 ml-auto">{byYear[year]?.length ?? 0}</span>
                   </button>
                 );
               })}
             </nav>
           )}
 
-          {/* Stats */}
           <div className="relative z-10 mt-auto pt-6 border-t border-zinc-800 flex gap-8">
             <div>
               <div className="text-2xl font-black text-orange-400">{projects.length}</div>
@@ -394,8 +527,8 @@ export default function ProjectsPage() {
           </div>
         </aside>
 
-        {/* ── RIGHT SCROLLABLE PANEL ── */}
-        <section ref={scrollRef} className="flex-1 relative overflow-y-auto px-6 md:px-16" style={{ scrollbarWidth: "none" }}>
+        {/* RIGHT SCROLLABLE PANEL */}
+        <section ref={scrollRef} className="flex-1 relative overflow-y-auto px-16" style={{ scrollbarWidth: "none" }}>
           <svg ref={svgRef}
             className="absolute top-0 left-1/2 -translate-x-1/2 w-8 pointer-events-none z-10"
             style={{ height: "100%", overflow: "visible", position: "absolute" }}
@@ -411,16 +544,12 @@ export default function ProjectsPage() {
           </svg>
 
           <div className="pt-36 pb-32">
-
-            {/* LOADING */}
             {loading && (
               <div className="flex flex-col items-center justify-center h-64 gap-4">
                 <div className="w-10 h-10 rounded-full border-4 border-zinc-800 border-t-orange-500 animate-spin" />
                 <p className="text-zinc-600 text-sm font-mono">Loading projects...</p>
               </div>
             )}
-
-            {/* ERROR */}
             {error && (
               <div className="flex flex-col items-center justify-center h-64 gap-3 text-center">
                 <div className="text-4xl">⚠️</div>
@@ -431,12 +560,8 @@ export default function ProjectsPage() {
                 </button>
               </div>
             )}
-
-            {/* PROJECTS grouped by year */}
             {!loading && !error && (
               <div key={activeCategory} className="cat-enter">
-
-                {/* Empty state */}
                 {filtered.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-600 text-center">
                     <span className="text-4xl opacity-30">{catConfig.icon}</span>
@@ -448,110 +573,93 @@ export default function ProjectsPage() {
                       const yearProjects = byYear[year];
                       return (
                         <li key={year} ref={(el) => { if (el) yearRefs.current.set(year, el); }}>
-
-                          {/* Year marker */}
                           <div className="flex items-center justify-center mb-16 relative z-20">
                             <div className="px-6 py-2 rounded-full border bg-black font-black text-2xl tracking-tight shadow-lg"
-                              style={{
-                                borderColor: catConfig.lineFrom + "40",
-                                color: catConfig.lineFrom,
-                                boxShadow: `0 0 24px ${catConfig.lineFrom}15`,
-                              }}>
+                              style={{ borderColor: catConfig.lineFrom + "40", color: catConfig.lineFrom, boxShadow: `0 0 24px ${catConfig.lineFrom}15` }}>
                               {year}
                             </div>
                           </div>
-
                           <ul className="space-y-20">
                             {yearProjects.map((item, index) => {
                               const globalIdx = flatFiltered.findIndex((p) => p.id === item.id);
                               const isLeft = index % 2 === 0;
-
                               return (
-                                <li key={item.id} className="relative proj-card">
-
-                                  {/* MOBILE: Single Card */}
-                                  <div className="md:hidden w-full mb-8">
-                                    <div className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
-                                      style={{ ['--hover-border' as string]: catConfig.lineFrom + "50" }}>
-                                      <div className="relative h-36 w-full bg-zinc-900">
-                                        {item.image_url ? (
-                                          <Image src={item.image_url} alt={item.name} fill className="object-cover" />
-                                        ) : (
-                                          <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                        <span className="absolute top-3 right-3 text-[10px] font-mono text-zinc-400 border border-zinc-700 bg-black/60 px-2 py-0.5 rounded">
-                                          #{String(globalIdx + 1).padStart(2, "0")}
-                                        </span>
+                                <li key={item.id} className="relative grid grid-cols-[1fr_48px_1fr] items-center proj-card">
+                                  <div className={isLeft ? "pr-8" : "opacity-0 pointer-events-none"}>
+                                    {isLeft && (
+                                      <div className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
+                                        <div className="relative aspect-square w-full bg-zinc-900">
+                                          {item.image_url ? (
+                                            <Image src={item.image_url} alt={item.name} fill className="object-contain" />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
+                                          )}
+                                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                                          <span className="absolute top-3 right-3 text-[10px] font-mono text-zinc-400 border border-zinc-700 bg-black/60 px-2 py-0.5 rounded">
+                                            #{String(globalIdx + 1).padStart(2, "0")}
+                                          </span>
+                                        </div>
+                                        <div className="p-5 text-right">
+                                          <h3 className="text-base font-black text-white">{item.name}</h3>
+                                          <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{item.description}</p>
+                                          {item.framer_url && (
+                                            <a 
+                                              href={item.framer_url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                                            >
+                                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41 1.41L10 14.17V7h2v7.17l3.59-3.58L17 12l-5 5z"/>
+                                              </svg>
+                                              View Project
+                                            </a>
+                                          )}
+                                        </div>
                                       </div>
-                                      <div className="p-5">
-                                        <h3 className="text-base font-black text-white">{item.name}</h3>
-                                        <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{item.description}</p>
-                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center justify-center relative z-20">
+                                    <div ref={(el) => { if (el) dotMap.current.set(globalIdx, el); }}
+                                      className="proj-dot proj-dot-wrap relative" style={{ color: catConfig.lineFrom }}>
+                                      <div className="proj-dot-ring" />
+                                      <div className="w-4 h-4 rounded-full bg-zinc-900 border-2 transition-all duration-300"
+                                        style={{ borderColor: catConfig.lineFrom }} />
                                     </div>
                                   </div>
-
-                                  {/* DESKTOP: Grid Layout */}
-                                  <div className="hidden md:grid grid-cols-[1.5fr_40px_1.5fr] items-center w-full gap-8">
-                                    {/* DESKTOP: Left Card */}
-                                    <div className="pr-6">
-                                      {isLeft && (
-                                        <div className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
-                                          style={{ ['--hover-border' as string]: catConfig.lineFrom + "50" }}>
-                                          <div className="relative h-40 w-full bg-zinc-900">
-                                            {item.image_url ? (
-                                              <Image src={item.image_url} alt={item.name} fill className="object-cover" />
-                                            ) : (
-                                              <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                            <span className="absolute top-3 right-3 text-[10px] font-mono text-zinc-400 border border-zinc-700 bg-black/60 px-2 py-0.5 rounded">
-                                              #{String(globalIdx + 1).padStart(2, "0")}
-                                            </span>
-                                          </div>
-                                          <div className="p-6 text-right">
-                                            <h3 className="text-lg font-black text-white">{item.name}</h3>
-                                            <p className="text-xs text-zinc-500 mt-2 leading-relaxed">{item.description}</p>
-                                          </div>
+                                  <div className={!isLeft ? "pl-8" : "opacity-0 pointer-events-none"}>
+                                    {!isLeft && (
+                                      <div className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
+                                        <div className="relative aspect-square w-full bg-zinc-900">
+                                          {item.image_url ? (
+                                            <Image src={item.image_url} alt={item.name} fill className="object-contain" />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
+                                          )}
+                                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                                          <span className="absolute top-3 left-3 text-[10px] font-mono text-zinc-400 border border-zinc-700 bg-black/60 px-2 py-0.5 rounded">
+                                            #{String(globalIdx + 1).padStart(2, "0")}
+                                          </span>
                                         </div>
-                                      )}
-                                    </div>
-
-                                    {/* DESKTOP: Center Dot */}
-                                    <div className="flex items-center justify-center relative z-20">
-                                      <div
-                                        ref={(el) => { if (el) dotMap.current.set(globalIdx, el); }}
-                                        className="proj-dot proj-dot-wrap relative"
-                                        style={{ color: catConfig.lineFrom }}
-                                      >
-                                        <div className="proj-dot-ring" />
-                                        <div className="w-5 h-5 rounded-full bg-zinc-900 border-2 transition-all duration-300"
-                                          style={{ borderColor: catConfig.lineFrom }} />
+                                        <div className="p-5">
+                                          <h3 className="text-base font-black text-white">{item.name}</h3>
+                                          <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{item.description}</p>
+                                          {item.framer_url && (
+                                            <a 
+                                              href={item.framer_url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                                            >
+                                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41 1.41L10 14.17V7h2v7.17l3.59-3.58L17 12l-5 5z"/>
+                                              </svg>
+                                              View Project
+                                            </a>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-
-                                    {/* DESKTOP: Right Card */}
-                                    <div className="pl-6">
-                                      {!isLeft && (
-                                        <div className="card-hover bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
-                                          <div className="relative h-40 w-full bg-zinc-900">
-                                            {item.image_url ? (
-                                              <Image src={item.image_url} alt={item.name} fill className="object-cover" />
-                                            ) : (
-                                              <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">No image</div>
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                            <span className="absolute top-3 left-3 text-[10px] font-mono text-zinc-400 border border-zinc-700 bg-black/60 px-2 py-0.5 rounded">
-                                              #{String(globalIdx + 1).padStart(2, "0")}
-                                            </span>
-                                          </div>
-                                          <div className="p-5">
-                                            <h3 className="text-base font-black text-white">{item.name}</h3>
-                                            <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{item.description}</p>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
                                 </li>
                               );
