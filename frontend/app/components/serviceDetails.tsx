@@ -56,7 +56,7 @@ async function generateQuotePDF(
   total: number,
   contact: ContactForm
 ): Promise<{ base64: string; blob: Blob }> {
-  const jsPDF = (await import("jspdf")).default;
+  const { jsPDF } = await import("jspdf/dist/jspdf.umd.min.js");
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
   const W = 210;
