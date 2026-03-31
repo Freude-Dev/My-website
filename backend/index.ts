@@ -19,6 +19,18 @@ const port = process.env.PORT || 5000
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }))
 app.use(express.json())
 
+// Prevent search engines from indexing backend API endpoints
+app.use((req, res, next) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
+// Explicit robots.txt for the backend to disallow all crawlers
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain')
+  res.send('User-agent: *\nDisallow: /')
+})
+
 // Routes
 app.use('/api/quote', quoteRouter)
 app.use('/api/auth', authRouter)

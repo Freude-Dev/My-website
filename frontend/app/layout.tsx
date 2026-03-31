@@ -19,11 +19,41 @@ const tommy = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Freude Dev",
+  metadataBase: new URL("https://freudedev.com"),
+  title: {
+    default: "Freude Dev | Efficient Services at your disposal",
+    template: "%s | Freude Dev",
+  },
+  description: "Freude Dev offers efficient digital services, IT solutions, and web development to help your business grow.",
+  keywords: ["Web Development", "IT Solutions", "Networking", "Digital Services", "Freude Dev"],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Freude Dev | Efficient Services",
+    description: "Efficient digital services, web development, and IT solutions tailored for your business.",
+    url: "https://freudedev.com",
+    siteName: "Freude Dev",
+    images: [
+      {
+        url: "/icons/icon.png",
+        width: 800,
+        height: 600,
+        alt: "Freude Dev Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Freude Dev | Efficient Services",
+    description: "Efficient digital services, web development, and IT solutions tailored for your business.",
+    images: ["/icons/icon.png"],
+  },
   icons: {
     icon: "/icons/icon.png",
   },
-  description: "Efficient Services at your disposal",
 };
 
 export default function RootLayout({

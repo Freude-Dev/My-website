@@ -1,33 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Force webpack to avoid Turbopack warning
-  webpack: (config, { isServer }) => {
-    // Prevent jspdf/fflate from being bundled on the server
-    if (isServer) {
-      config.externals = [...(config.externals || []), 'jspdf', 'fflate'];
-    } else {
-      // Handle fflate browser issues
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        crypto: false,
-      };
-      // Fix Worker issues in browser
-      config.module.rules.push({
-        test: /node\.cjs$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: ['@babel/plugin-transform-runtime'],
-          },
-        },
-      });
-    }
-    return config;
-  },
   images: {
     remotePatterns: [
       {
@@ -48,6 +21,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Handle external dependencies for Turbopack
+  transpilePackages: ['jspdf', 'fflate'],
 };
 
 export default nextConfig;
