@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Empty turbopack config to silence warning
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -9,20 +11,40 @@ const nextConfig: NextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
       {
-        // Allow any Supabase project (useful if you change projects)
         protocol: 'https',
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
       {
-        // Unsplash images used in testimonials/about
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
     ],
   },
-  // Handle external dependencies for Turbopack
   transpilePackages: ['jspdf', 'fflate'],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'jspdf', 'fflate'];
+    } else {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
+      config.module.rules.push({
+        test: /node\.cjs$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-transform-runtime'],
+          },
+        },
+      });
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
