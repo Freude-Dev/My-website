@@ -446,10 +446,10 @@ export default function Service() {
 
       {/* ── MODAL ── */}
       {activeService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-lg" onClick={handleClose} />
 
-          <div ref={modalRef} className="relative z-10 w-full max-w-5xl">
+          <div ref={modalRef} className="relative z-10 w-full max-w-5xl max-h-[94vh] md:max-h-none overflow-y-auto">
             <div
               ref={modalBoxRef}
               onMouseMove={handleMouseMove}
@@ -464,7 +464,7 @@ export default function Service() {
               <div className="relative z-10 grid md:grid-cols-[1fr_1.4fr]">
 
                 {/* LEFT — SERVICE IDENTITY */}
-                <div className="relative flex flex-col justify-between p-8 md:p-10 overflow-hidden min-h-[340px]">
+                <div className="relative flex flex-col justify-between p-5 md:p-10 overflow-hidden min-h-[220px] md:min-h-[340px]">
                   <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${activeService.image})` }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-orange-950/60" />
                   <div className="scanline" />
@@ -492,7 +492,7 @@ export default function Service() {
                 </div>
 
                 {/* RIGHT PANEL — changes per step */}
-                <div className="p-8 md:p-10 border-t md:border-t-0 md:border-l border-zinc-800/80">
+                <div className="p-5 md:p-10 border-t md:border-t-0 md:border-l border-zinc-800/80">
 
                   {/* ── STEP 1: Service selector ── */}
                   {step === "service" && (
