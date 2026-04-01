@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://freudedev.com/sitemap.xml', // Replace with your actual absolute sitemap URL
+    sitemap: 'https://my-website-y7bm.vercel.app/sitemap.xml', // Replace with your actual absolute sitemap URL
   }
 }

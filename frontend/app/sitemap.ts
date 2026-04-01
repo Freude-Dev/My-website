@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://freudedev.com', // Replace with your actual production URL
+      url: 'https://my-website-y7bm.vercel.app', // Replace with your actual production URL
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,

@@ -110,7 +110,10 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
       form.category === 'Network Administration' &&
       file.name.toLowerCase().endsWith('.unl');
 
-    if (!isOffice && !isNetworkUnl) {
+    // Allow PDF files for Network Administration category
+    const isPdf = file.type === 'application/pdf' && file.name.toLowerCase().endsWith('.pdf');
+
+    if (!isOffice && !isNetworkUnl && !isPdf) {
       toast.error(
         form.category === 'Network Administration'
           ? 'Only .doc, .docx, .xls, .xlsx, .pdf, or .unl files are allowed'

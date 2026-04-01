@@ -20,7 +20,7 @@ const tommy = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://freudedev.com"),
+  metadataBase: new URL("https://my-website-y7bm.vercel.app"),
   title: {
     default: "Freude Dev | Efficient Services at your disposal",
     template: "%s | Freude Dev",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Freude Dev | Efficient Services",
     description: "Efficient digital services, web development, and IT solutions tailored for your business.",
-    url: "https://freudedev.com",
+    url: "https://my-website-y7bm.vercel.app",
     siteName: "Freude Dev",
     images: [
       {

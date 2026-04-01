@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    
-  },
+  // Empty turbopack config to silence warning
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -22,17 +21,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   transpilePackages: ['jspdf', 'fflate'],
   webpack: (config, { isServer }) => {
+
     if (isServer) {
       config.externals = [...(config.externals || []), 'jspdf', 'fflate'];
     } else {
+      // Handle fflate browser issues with Worker
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         path: false,
         crypto: false,
       };
+      // Fix Worker issues in browser
       config.module.rules.push({
         test: /node\.cjs$/,
         use: {
