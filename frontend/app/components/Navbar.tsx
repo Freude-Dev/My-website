@@ -14,9 +14,19 @@ import { HiMenu, HiX } from "react-icons/hi";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("CM");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const WHATSAPP_NUMBER = "237650812141";
 
   const links = [
     { label: "About", href: "/about" },
@@ -26,6 +36,8 @@ export default function Navbar() {
 
   useEffect(() => {
     if (showModal && modalRef.current) {
+      setSubmitStatus("idle");
+      setSubmitMessage("");
       gsap.fromTo(
         modalRef.current,
         { scale: 0.85, opacity: 0, transformOrigin: "center center" },
@@ -38,6 +50,16 @@ export default function Navbar() {
       );
     }
   }, [showModal]);
+
+  useEffect(() => {
+    if (submitStatus !== "success") return;
+    const timer = setTimeout(() => {
+      setSubmitStatus("idle");
+      setSubmitMessage("");
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [submitStatus]);
 
   const closeModal = () => {
     if (!modalRef.current || !backdropRef.current) return;
@@ -55,6 +77,47 @@ export default function Navbar() {
       duration: 0.25,
       ease: "power2.in",
     });
+  };
+
+  const handleSubmitMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fullName = `${firstName} ${lastName}`.trim() || "No name provided";
+    setSubmitStatus("idle");
+    setSubmitMessage("");
+    setSending(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          phone: `${countryCode} ${phone}`.trim(),
+          subject: `Website Contact - ${fullName}`,
+          message,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to send message");
+      }
+
+      setSubmitStatus("success");
+      setSubmitMessage("Message sent successfully. We will get back to you soon.");
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setCountryCode("CM");
+      setPhone("");
+      setMessage("");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to send message. Please try again.";
+      setSubmitStatus("error");
+      setSubmitMessage(errorMessage);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -214,38 +277,71 @@ export default function Navbar() {
               </div>
 
               <div className="flex-1 w-full md:max-w-md rounded-xl bg-[#FF7F00]/10 backdrop-blur-sm border border-white/10 p-6 md:p-8 z-10 overflow-y-auto max-h-[90vh] relative">
-                <form className="space-y-4 md:space-y-6 mt-4">
+                <form onSubmit={handleSubmitMessage} className="space-y-4 md:space-y-6 mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-sm text-white mb-1">First name</label>
-                      <input type="text" placeholder="David" className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"/>
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="David"
+                        className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm text-white mb-1">Last name</label>
-                      <input type="text" placeholder="Andrew" className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"/>
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Andrew"
+                        className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                      />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm text-white mb-1">Email id</label>
-                    <input type="email" placeholder="david@company.com" className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"/>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="david@company.com"
+                      className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-sm text-white mb-1">Phone number</label>
                     <div className="flex border border-white/20 rounded-lg overflow-hidden focus-within:border-orange-500 transition-colors">
-                      <select className="px-2 md:px-3 py-2 md:py-3 text-sm outline-none cursor-pointer text-white bg-black/10 border-r border-white/20">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="px-2 md:px-3 py-2 md:py-3 text-sm outline-none cursor-pointer text-white bg-black/10 border-r border-white/20"
+                      >
                         <option>CM</option>
                         <option>US</option>
                         <option>CA</option>
                       </select>
-                      <input type="tel" placeholder="+237 123456789" className="flex-1 px-2 md:px-3 py-2 md:py-3 text-sm outline-none text-white bg-black/10"/>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+237 123456789"
+                        className="flex-1 px-2 md:px-3 py-2 md:py-3 text-sm outline-none text-white bg-black/10"
+                      />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm text-white mb-1">Message</label>
-                    <textarea rows={4} className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none resize-y focus:border-orange-500 transition-colors text-white bg-black/10"/>
+                    <textarea
+                      rows={4}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none resize-y focus:border-orange-500 transition-colors text-white bg-black/10"
+                    />
                   </div>
 
                   <div className="flex items-center gap-2 mb-4">
@@ -255,9 +351,35 @@ export default function Navbar() {
                     </label>
                   </div>
 
-                  <button type="submit" className="w-full py-3.5 bg-gradient-to-br from-orange-700 to-orange-500 text-white rounded-lg text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(255,127,0,0.3)]">
-                    Send message
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      className="w-full py-3.5 bg-gradient-to-br from-orange-700 to-orange-500 text-white rounded-lg text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(255,127,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sending ? "Sending..." : "Send message"}
+                    </button>
+
+                    <a
+                      href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 bg-[#25D366] text-white rounded-lg text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(37,211,102,0.25)] flex items-center justify-center gap-2"
+                    >
+                      <SiWhatsapp className="text-base" />
+                      Chat on WhatsApp
+                    </a>
+                  </div>
+
+                  {submitStatus !== "idle" && (
+                    <p
+                      className={`text-sm ${
+                        submitStatus === "success" ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {submitMessage}
+                    </p>
+                  )}
                 </form>
               </div>
 
