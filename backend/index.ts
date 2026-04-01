@@ -18,14 +18,26 @@ const port = process.env.PORT || 5000
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 
-const allowedOrigins = [
+const envOrigins = [
   process.env.FRONTEND_URL,
-].filter(Boolean) as string[]
+  process.env.FRONTEND_URLS,
+]
+  .filter(Boolean)
+  .flatMap((value) => (value as string).split(","))
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean)
+
+const allowedOrigins = Array.from(new Set(envOrigins))
+const vercelPreviewPattern = /^https:\/\/my-website(-[a-z0-9]+)?\.vercel\.app$/i
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) {
+    const normalizedOrigin = origin.replace(/\/$/, "")
+    const isAllowedByList = allowedOrigins.includes(normalizedOrigin)
+    const isAllowedVercelPreview = vercelPreviewPattern.test(normalizedOrigin)
+
+    if (isAllowedByList || isAllowedVercelPreview) {
       callback(null, true)
     } else {
       console.warn(`CORS blocked: ${origin}`)
