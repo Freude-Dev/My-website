@@ -98,16 +98,28 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowed = [
+    const officeMimes = [
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/pdf',
     ];
+    const isOffice = officeMimes.includes(file.type);
+    const isNetworkUnl =
+      form.category === 'Network Administration' &&
+      file.name.toLowerCase().endsWith('.unl');
 
-    if (!allowed.includes(file.type)) {
-      toast.error('Only .doc, .docx, .xls, .xlsx, .pdf files are allowed');
+    if (!isOffice && !isNetworkUnl) {
+      toast.error(
+        form.category === 'Network Administration'
+          ? 'Only .doc, .docx, .xls, .xlsx, .pdf, or .unl files are allowed'
+          : 'Only .doc, .docx, .xls, .xlsx, .pdf files are allowed'
+      );
+      return;
+    }
+    if (isNetworkUnl && file.size > 15 * 1024 * 1024) {
+      toast.error('.unl file must be under 15MB');
       return;
     }
 
@@ -386,7 +398,11 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
                 <FileText size={13} className="text-blue-400" /> Project Document
-                <span className="text-zinc-500 text-xs font-normal">.doc .docx .xls .xlsx .pdf</span>
+                <span className="text-zinc-500 text-xs font-normal">
+                  {form.category === 'Network Administration'
+                    ? '.doc .docx .xls .xlsx .pdf .unl'
+                    : '.doc .docx .xls .xlsx .pdf'}
+                </span>
               </label>
 
               {form.document_url ? (
@@ -415,7 +431,11 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
                   </span>
                   <input
                     type="file"
-                    accept=".doc,.docx,.xls,.xlsx,.pdf"
+                    accept={
+                      form.category === 'Network Administration'
+                        ? '.doc,.docx,.xls,.xlsx,.pdf,.unl'
+                        : '.doc,.docx,.xls,.xlsx,.pdf'
+                    }
                     className="hidden"
                     onChange={handleFileUpload}
                     disabled={uploading}

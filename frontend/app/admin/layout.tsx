@@ -161,15 +161,30 @@ function AddProjectModal({
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const allowed = [
+    if (!selectedCategory) return;
+
+    const officeMimes = [
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/pdf',
     ];
-    if (!allowed.includes(file.type)) {
-      toast.error('Only .doc, .docx, .xls, .xlsx, .pdf files are allowed');
+    const isOffice = officeMimes.includes(file.type);
+    const isNetworkUnl =
+      selectedCategory === 'Network Administration' &&
+      file.name.toLowerCase().endsWith('.unl');
+
+    if (!isOffice && !isNetworkUnl) {
+      toast.error(
+        selectedCategory === 'Network Administration'
+          ? 'Only .doc, .docx, .xls, .xlsx, .pdf, or .unl files are allowed'
+          : 'Only .doc, .docx, .xls, .xlsx, .pdf files are allowed'
+      );
+      return;
+    }
+    if (isNetworkUnl && file.size > 15 * 1024 * 1024) {
+      toast.error('.unl file must be under 15MB');
       return;
     }
     setUploading(true);
@@ -343,7 +358,11 @@ function AddProjectModal({
                 <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
                   <FileText size={13} className="text-blue-400" />
                   {selectedCategory === 'Network Administration' ? 'Network Report / Config File' : 'IT Report / Documentation'}
-                  <span className="text-zinc-500 text-xs font-normal ml-1">.doc .docx .xls .xlsx .pdf</span>
+                  <span className="text-zinc-500 text-xs font-normal ml-1">
+                    {selectedCategory === 'Network Administration'
+                      ? '.doc .docx .xls .xlsx .pdf .unl'
+                      : '.doc .docx .xls .xlsx .pdf'}
+                  </span>
                 </label>
                 {form.document_url ? (
                   <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-700 rounded-xl">
@@ -360,7 +379,17 @@ function AddProjectModal({
                     <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors">
                       {uploading ? 'Uploading...' : 'Click to upload document'}
                     </span>
-                    <input type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" className="hidden" onChange={handleFileUpload} disabled={uploading} />
+                    <input
+                      type="file"
+                      accept={
+                        selectedCategory === 'Network Administration'
+                          ? '.doc,.docx,.xls,.xlsx,.pdf,.unl'
+                          : '.doc,.docx,.xls,.xlsx,.pdf'
+                      }
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      disabled={uploading}
+                    />
                   </label>
                 )}
               </div>
