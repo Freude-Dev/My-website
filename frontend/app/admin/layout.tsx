@@ -34,7 +34,7 @@ const supabase = createClient(
 );
 
 // Client-side fetch helper — uses a server action to attach the httpOnly token
-// The admin-token cookie is httpOnly so document.cookie cannot read it.
+// admin-access / admin-refresh cookies are httpOnly — use /api/admin-proxy to call the API.
 // We call a dedicated Next.js API route that reads the cookie server-side and proxies the request.
 async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const res = await fetch('/api/admin-proxy', {

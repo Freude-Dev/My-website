@@ -1,16 +1,36 @@
 import { Router, Request, Response } from 'express'
 import nodemailer from 'nodemailer'
+import { z } from 'zod'
 
 const router = Router()
+const quoteSchema = z.object({
+  clientName: z.string().trim().min(2).max(120),
+  clientEmail: z.string().trim().email().max(200),
+  clientPhone: z.string().trim().min(6).max(40),
+  serviceName: z.string().trim().min(2).max(150),
+  selectedServices: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(200),
+        price: z.number().finite().nonnegative(),
+      })
+    )
+    .max(100),
+  total: z.number().finite().nonnegative(),
+  pdfBase64: z.string().min(100),
+})
 
 // POST /api/quote — receive quote data + PDF base64, send via Gmail
 router.post('/', async (req: Request, res: Response) => {
-  const { clientName, clientEmail, clientPhone, serviceName, selectedServices, total, pdfBase64 } = req.body
-
-  if (!clientName || !clientEmail || !serviceName || !pdfBase64) {
-    res.status(400).json({ message: 'Missing required fields' })
+  const parsed = quoteSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({
+      message: 'Invalid request payload',
+      details: parsed.error.issues.map((i) => i.message),
+    })
     return
   }
+  const { clientName, clientEmail, clientPhone, serviceName, selectedServices, total, pdfBase64 } = parsed.data
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -32,7 +52,7 @@ router.post('/', async (req: Request, res: Response) => {
     await transporter.sendMail({
       from: `"FreudeDev Quotes" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER,
-      subject: `New Quote Request — ${serviceName} — ${clientName}`,
+      subject: `New Quote Request — ${clientName} — ${clientPhone}`,
       text: `
 New quote request received.
 

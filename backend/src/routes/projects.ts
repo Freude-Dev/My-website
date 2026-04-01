@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { supabase } from '../lib/supabase'
-import { verifyToken } from '../middleware/auth'
+import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
 
@@ -133,7 +133,7 @@ router.patch('/:id/visibility', verifyToken, async (req: Request, res: Response)
 })
 
 // DELETE /api/projects/:id — delete a project
-router.delete('/:id', verifyToken, async (req: Request, res: Response) => {
+router.delete('/:id', verifyToken, requireRole('admin'), async (req: Request, res: Response) => {
   const { id } = req.params
 
   const { error } = await supabase

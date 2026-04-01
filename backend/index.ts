@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 
 dotenv.config()
 
@@ -15,6 +17,31 @@ import { verifyToken } from './src/middleware/auth'
 
 const app = express()
 const port = process.env.PORT || 5000
+app.set('trust proxy', 1)
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many requests, please try again later.' },
+})
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login attempts, please try again later.' },
+})
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+)
+app.use(globalLimiter)
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 
@@ -71,7 +98,7 @@ app.get('/', (req, res) => {
 
 // ─── ROUTES ──────────────────────────────────────────────────────────────────
 
-app.use('/api/auth',       authRouter)
+app.use('/api/auth',       authLimiter, authRouter)
 app.use('/api/waitlist',   waitlistRouter)
 app.use('/api/newsletter', newsletterRouter)
 app.use('/api/contact',    contactRouter)

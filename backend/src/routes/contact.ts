@@ -1,16 +1,27 @@
 import { Router, Request, Response } from 'express'
 import { supabase } from '../lib/supabase'
 import nodemailer from 'nodemailer'
+import { z } from 'zod'
 
 const router = Router()
+const contactSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(200),
+  subject: z.string().trim().max(200).optional(),
+  message: z.string().trim().min(5).max(3000),
+  phone: z.string().trim().max(40).optional(),
+})
 
 router.post('/', async (req: Request, res: Response) => {
-  const { name, email, subject, message, phone } = req.body
-
-  if (!name || !email || !message) {
-    res.status(400).json({ error: 'Name, email and message are required' })
+  const parsed = contactSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({
+      error: 'Invalid request payload',
+      details: parsed.error.issues.map((i) => i.message),
+    })
     return
   }
+  const { name, email, subject, message, phone } = parsed.data
 
   const { error } = await supabase
     .from('contact_messages')

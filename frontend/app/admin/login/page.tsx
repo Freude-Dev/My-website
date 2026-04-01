@@ -9,6 +9,7 @@ import { loginAction } from './actions';
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [totp, setTotp] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const result = await loginAction(email, password);
+      const result = await loginAction(email, password, totp.trim() || undefined);
       
       if (result.success) {
         toast.success('Welcome back, Admin!');
@@ -79,6 +80,20 @@ export default function AdminLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-400 ml-1">Authenticator code (optional)</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="6 digits if 2FA is enabled"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 outline-none focus:border-orange-500 transition-all font-mono tracking-widest"
+                value={totp}
+                onChange={(e) => setTotp(e.target.value.replace(/\D/g, '').slice(0, 8))}
+              />
+              <p className="text-xs text-zinc-600">Only required when ADMIN_TOTP_SECRET is set on the server.</p>
             </div>
 
             <button 

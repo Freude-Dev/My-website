@@ -304,9 +304,32 @@ export default function Service() {
     URL.revokeObjectURL(url);
   };
 
-  // WhatsApp: download PDF + open WA with pre-filled message
-  const handleWhatsApp = () => {
-    downloadPDF();
+  const sendQuoteByEmail = async () => {
+    if (!activeService || !pdfBase64) return false;
+    const selectedServices = selected.map((i) => ({
+      name: activeService.subservices[i],
+      price: activeService.prices[i],
+    }));
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientName: contact.name,
+        clientEmail: contact.email,
+        clientPhone: contact.phone,
+        serviceName: activeService.name,
+        selectedServices,
+        total,
+        pdfBase64,
+      }),
+    });
+
+    return res.ok;
+  };
+
+  // WhatsApp: open WA immediately, then send quote PDF by email in background
+  const handleWhatsApp = async () => {
     const servicesList = selected
       .map((i) => `• ${activeService?.subservices[i]} — ${activeService?.prices[i].toLocaleString()} FCFA`)
       .join("\n");
@@ -315,6 +338,18 @@ export default function Service() {
       `Hello FreudeDev! 👋\n\nI'm ${contact.name} and I'd like to request a quote for *${activeService?.name}*.\n\n*Selected Services:*\n${servicesList}\n\n*Total:* ${total.toLocaleString()} FCFA\n\n📧 ${contact.email}\n📞 ${contact.phone}\n\nI've also downloaded the PDF quote. Please get back to me at your earliest convenience!`
     );
     window.open(`https://wa.me/${WA_NUMBER}?text=${message}`, "_blank");
+
+    // Keep existing behavior: user still gets the local PDF copy.
+    downloadPDF();
+
+    setSending(true);
+    try {
+      await sendQuoteByEmail();
+    } catch (err) {
+      console.error("Email send failed after WhatsApp redirect:", err);
+    } finally {
+      setSending(false);
+    }
   };
 
   // Email: send PDF via backend → Nodemailer
@@ -322,31 +357,12 @@ export default function Service() {
     if (!activeService || !pdfBase64) return;
     setSending(true);
     try {
-      const selectedServices = selected.map((i) => ({
-        name: activeService.subservices[i],
-        price: activeService.prices[i],
-      }));
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientName: contact.name,
-          clientEmail: contact.email,
-          clientPhone: contact.phone,
-          serviceName: activeService.name,
-          selectedServices,
-          total,
-          pdfBase64,
-        }),
-      });
-
-      if (res.ok) {
+      const sent = await sendQuoteByEmail();
+      if (sent) {
         alert(`✅ Quote sent successfully!\nCheck your inbox at ${contact.email}`);
         handleClose();
       } else {
-        const data = await res.json();
-        alert(`❌ Failed to send: ${data.message || 'Unknown error occurred'}`);
+        alert("❌ Failed to send quote email.");
       }
     } catch (err) {
       alert("❌ Could not reach the server. Is the backend running?");
