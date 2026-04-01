@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import PageTransition from "./components/pageTransition";
 import localFont from 'next/font/local'
+import { Analytics } from "@vercel/analytics/next"
 import NavbarWrapper from "./components/NavbarWrapper";
 
 const tommy = localFont({
