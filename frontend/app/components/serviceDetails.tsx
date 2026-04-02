@@ -1,11 +1,8 @@
 "use client";
-
 import React, { JSX, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import data from "../../data/ServiceDetails.json";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type ServiceType = {
   id: number;
@@ -24,11 +21,7 @@ type ContactForm = {
 
 type Step = "service" | "contact" | "share";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const WA_NUMBER = "237650812141"; // WhatsApp Business number
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 const icons: Record<string, JSX.Element> = {
   "IT Maintenance": (
@@ -48,8 +41,6 @@ const icons: Record<string, JSX.Element> = {
   ),
 };
 
-// ─── PDF Generator ────────────────────────────────────────────────────────────
-
 async function generateQuotePDF(
   service: ServiceType,
   selectedIndexes: number[],
@@ -63,33 +54,27 @@ async function generateQuotePDF(
   const margin = 20;
   let y = 0;
 
-  // ── HEADER BACKGROUND ──
   doc.setFillColor(10, 10, 10);
   doc.rect(0, 0, W, 50, "F");
 
-  // Orange accent bar
   doc.setFillColor(249, 115, 22);
   doc.rect(0, 0, 4, 50, "F");
 
-  // Company name
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont("helvetica", "bold");
   doc.text("FreudeDev", margin + 4, 20);
 
-  // Tagline
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(161, 161, 170);
   doc.text("IT Maintenance  •  Web Design  •  Network Administration", margin + 4, 28);
 
-  // QUOTE label
   doc.setFontSize(10);
   doc.setTextColor(249, 115, 22);
   doc.setFont("helvetica", "bold");
   doc.text("SERVICE QUOTE", W - margin, 20, { align: "right" });
 
-  // Date
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(161, 161, 170);
@@ -97,7 +82,6 @@ async function generateQuotePDF(
 
   y = 62;
 
-  // ── CLIENT INFO ──
   doc.setFillColor(24, 24, 27);
   doc.roundedRect(margin, y, W - margin * 2, 36, 3, 3, "F");
 
@@ -118,7 +102,6 @@ async function generateQuotePDF(
 
   y += 48;
 
-  // ── SERVICE NAME ──
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(249, 115, 22);
@@ -137,13 +120,11 @@ async function generateQuotePDF(
   doc.text(service.description, margin, y);
   y += 12;
 
-  // ── DIVIDER ──
   doc.setDrawColor(39, 39, 42);
   doc.setLineWidth(0.5);
   doc.line(margin, y, W - margin, y);
   y += 10;
 
-  // ── TABLE HEADER ──
   doc.setFillColor(24, 24, 27);
   doc.rect(margin, y, W - margin * 2, 10, "F");
 
@@ -154,7 +135,6 @@ async function generateQuotePDF(
   doc.text("PRICE (FCFA)", W - margin - 4, y + 7, { align: "right" });
   y += 14;
 
-  // ── TABLE ROWS ──
   selectedIndexes.forEach((idx, i) => {
     const isEven = i % 2 === 0;
     if (isEven) {
@@ -176,12 +156,10 @@ async function generateQuotePDF(
 
   y += 4;
 
-  // ── DIVIDER ──
   doc.setDrawColor(39, 39, 42);
   doc.line(margin, y, W - margin, y);
   y += 8;
 
-  // ── TOTAL ──
   doc.setFillColor(249, 115, 22);
   doc.roundedRect(W - margin - 70, y, 70, 18, 2, 2, "F");
 
@@ -195,7 +173,6 @@ async function generateQuotePDF(
 
   y += 30;
 
-  // ── NOTES ──
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(113, 113, 122);
@@ -203,7 +180,6 @@ async function generateQuotePDF(
   y += 5;
   doc.text("Contact us to finalise your order and schedule a consultation.", margin, y);
 
-  // ── FOOTER ──
   doc.setFillColor(10, 10, 10);
   doc.rect(0, 282, W, 15, "F");
   doc.setFillColor(249, 115, 22);
@@ -218,8 +194,6 @@ async function generateQuotePDF(
   const blob = doc.output("blob");
   return { base64, blob };
 }
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function Service() {
   const [activeService, setActiveService] = useState<ServiceType | null>(null);
@@ -460,7 +434,7 @@ export default function Service() {
         ))}
       </div>
 
-      {/* ── MODAL ── */}
+      {/* Modal */}
       {activeService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-lg" onClick={handleClose} />
@@ -510,7 +484,7 @@ export default function Service() {
                 {/* RIGHT PANEL — changes per step */}
                 <div className="p-5 md:p-10 border-t md:border-t-0 md:border-l border-zinc-800/80">
 
-                  {/* ── STEP 1: Service selector ── */}
+                  {/* Step 1: Service selector */}
                   {step === "service" && (
                     <>
                       <div className="flex items-center justify-between mb-8">
@@ -626,7 +600,7 @@ export default function Service() {
                     </form>
                   )}
 
-                  {/* ── STEP 3: Share options ── */}
+                  {/* Step 3: Share options */}
                   {step === "share" && (
                     <div className="flex flex-col h-full">
                       <div className="flex items-center justify-between mb-8">

@@ -53,19 +53,9 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   return data;
 }
 
-// ─── Category config ──────────────────────────────────────────────────────────
-
 type Category = 'Web Design' | 'Network Administration' | 'IT';
 
-const CATEGORIES: {
-  value: Category;
-  label: string;
-  color: string;
-  bg: string;
-  border: string;
-  icon: React.ElementType;
-  description: string;
-}[] = [
+const CATEGORIES = [
   {
     value: 'Web Design',
     label: 'Web Design',
@@ -94,9 +84,6 @@ const CATEGORIES: {
     description: 'IT maintenance & support',
   },
 ];
-
-
-// ─── Add Project Modal ────────────────────────────────────────────────────────
 
 function AddProjectModal({
   onClose,
@@ -259,7 +246,7 @@ function AddProjectModal({
         {step === 1 ? (
           <div className="p-6 space-y-3">
             {CATEGORIES.map((cat) => (
-              <button key={cat.value} onClick={() => handleSelectCategory(cat.value)}
+              <button key={cat.value} onClick={() => handleSelectCategory(cat.value as Category)}
                 className={`w-full flex items-center gap-4 p-4 rounded-xl border ${cat.border} ${cat.bg} hover:opacity-90 transition-all text-left`}>
                 <div className="p-2.5 rounded-xl bg-zinc-900"><cat.icon size={20} className={cat.color} /></div>
                 <div>
@@ -427,13 +414,27 @@ function AddProjectModal({
   );
 }
 
-// ─── Layout ───────────────────────────────────────────────────────────────────
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const hideNavbar    = pathname === '/admin/login';
   const isProjectsPage = pathname === '/admin/projects';
+
+  // Additional localhost protection
+  React.useEffect(() => {
+    const isLocalhost = 
+      typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || 
+       window.location.hostname === '127.0.0.1' ||
+       window.location.hostname === '::1' ||
+       window.location.port === '3000');
+    
+    if (!isLocalhost && process.env.NODE_ENV === 'production') {
+      // Redirect to home page if not on localhost in production
+      router.push('/');
+      return;
+    }
+  }, [router]);
 
   const [showAddProject, setShowAddProject] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -510,7 +511,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </aside>
 
-        {/* ── MAIN CONTENT ── */}
+        {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0">
 
           {/* Top header */}
@@ -547,7 +548,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
 
-      {/* ── MOBILE DRAWER (slide in from left) ── */}
+      {/* Mobile Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           {/* Backdrop */}
@@ -610,7 +611,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       )}
 
-      {/* ── MOBILE BOTTOM TAB BAR ── */}
+      {/* Mobile Bottom Tab Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-zinc-900/95 backdrop-blur-xl border-t border-zinc-800">
         <div className="flex items-center justify-around px-2 py-2">
           {bottomItems.map((item) => {

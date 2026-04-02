@@ -19,7 +19,6 @@ import {
 import toast from 'react-hot-toast';
 import { supabase } from '../../../lib/supabase';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Category = 'Web Design' | 'Network Administration' | 'IT';
 
@@ -38,8 +37,6 @@ interface Project {
   document_name?: string;
 }
 
-// ─── Category config ──────────────────────────────────────────────────────────
-
 const CATEGORIES: { value: Category; label: string; color: string; bg: string; icon: React.ElementType }[] = [
   { value: 'Web Design', label: 'Web Design', color: 'text-orange-400', bg: 'bg-orange-400/10 border-orange-400/30', icon: Globe },
   { value: 'Network Administration', label: 'Network Admin', color: 'text-blue-400', bg: 'bg-blue-400/10 border-blue-400/30', icon: Network },
@@ -49,8 +46,6 @@ const CATEGORIES: { value: Category; label: string; color: string; bg: string; i
 function getCategoryConfig(cat: Category) {
   return CATEGORIES.find((c) => c.value === cat) || CATEGORIES[0];
 }
-
-// ─── Add / Edit Modal ─────────────────────────────────────────────────────────
 
 interface ModalProps {
   onClose: () => void;
@@ -93,7 +88,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
     }));
   };
 
-  // Upload file to Supabase Storage
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -235,10 +229,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative z-10 w-full max-w-xl bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl my-4">
-        {/* Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-24 bg-orange-600/15 blur-[60px] pointer-events-none rounded-full" />
-
-        {/* Header */}
         <div className="relative flex items-center justify-between px-6 py-5 border-b border-zinc-800">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-orange-600/20 rounded-xl">
@@ -254,10 +244,8 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="relative p-6 space-y-4">
 
-          {/* Category */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-300">Category <span className="text-orange-400">*</span></label>
             <div className="grid grid-cols-3 gap-2">
@@ -279,7 +267,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             </div>
           </div>
 
-          {/* Name */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-300">Project Name <span className="text-orange-400">*</span></label>
             <input
@@ -292,7 +279,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-300">Description <span className="text-orange-400">*</span></label>
             <textarea
@@ -306,13 +292,11 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             />
           </div>
 
-          {/* Thumbnail Image */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
               <ImageIcon size={13} /> Thumbnail Image
             </label>
             
-            {/* Image URL Input */}
             <div className="space-y-2">
               <input
                 name="image_url"
@@ -323,7 +307,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
               />
             </div>
 
-            {/* Image Upload */}
             <div className="space-y-2">
               <label className="flex flex-col items-center justify-center gap-2 p-4 bg-zinc-950 border border-dashed border-zinc-700 hover:border-orange-500/50 rounded-xl cursor-pointer transition-all group">
                 {imageUploading ? (
@@ -344,7 +327,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
               </label>
             </div>
 
-            {/* Image Preview */}
             {form.image_url && (
               <div className="space-y-2">
                 <div className="rounded-xl overflow-hidden border border-zinc-800 h-32">
@@ -369,7 +351,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             )}
           </div>
 
-          {/* Web Design → Framer URL */}
           {form.category === 'Web Design' && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
@@ -396,7 +377,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             </div>
           )}
 
-          {/* Network Admin / IT → Document Upload */}
           {form.category !== 'Web Design' && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
@@ -448,7 +428,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
             </div>
           )}
 
-          {/* Year + Order + Visible */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-zinc-300">Year <span className="text-orange-400">*</span></label>
@@ -485,13 +464,14 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
                     onChange={handleChange}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                  <div className={`w-11 h-6 rounded-full transition-colors ${form.is_visible ? 'bg-orange-600' : 'bg-zinc-700'}`}>
+                    <div className={`absolute top-0.5 left-0.5 bg-white rounded-full h-4 w-4 shadow transition-transform ${form.is_visible ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </div>
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
@@ -517,8 +497,6 @@ function ProjectModal({ onClose, onSuccess, existing }: ModalProps) {
     </div>
   );
 }
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -615,7 +593,7 @@ export default function AdminProjects() {
           })}
         </div>
 
-        {/* ── MOBILE CARDS (visible on sm and below) ── */}
+        {/* Mobile Cards */}
         <div className="md:hidden space-y-3">
           {filtered.length === 0 ? (
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl text-center py-16 text-zinc-500">
@@ -721,7 +699,7 @@ export default function AdminProjects() {
           )}
         </div>
 
-        {/* ── DESKTOP TABLE (hidden on mobile) ── */}
+        {/* Desktop Table */}
         <div className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

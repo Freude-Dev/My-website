@@ -33,7 +33,7 @@ export default function Home() {
 
       <HeroSection />
 
-      {/* ── TESTIMONIALS + STATS ── */}
+      {/* Testimonials + Stats */}
       <section className="w-full max-w-[85rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-24 mx-auto">
         <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-20 lg:items-center">
 

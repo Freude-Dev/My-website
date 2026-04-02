@@ -274,7 +274,7 @@ export default function ProjectsPage() {
         .cat-enter { animation: fadeIn 0.35s ease forwards; }
       `}</style>
 
-      {/* ── MOBILE LAYOUT ── */}
+      {/* Mobile Layout */}
       <div className="md:hidden flex flex-col bg-black text-white min-h-screen mt-16">
 
         {/* Mobile Header */}
