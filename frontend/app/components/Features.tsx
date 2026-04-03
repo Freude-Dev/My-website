@@ -1,53 +1,94 @@
+"use client";
+import React from "react";
+import { motion } from "framer-motion";
+import { ShieldCheck, Zap, Wrench } from "lucide-react";
+
 export default function Features() {
-    return (
-        <div className="flex flex-col items-center justify-center text-white mt-60">
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+  const features = [
+    {
+      title: "Proactive Maintenance",
+      description: "We ensure your systems run flawlessly 24/7 with continuous monitoring and rapid technical support to minimize downtime.",
+      icon: <Wrench strokeWidth={1.5} className="w-8 h-8 text-orange-500" />,
+      delay: 0.2
+    },
+    {
+      title: "High-Performance Web",
+      description: "We build blazing-fast, responsive, and aesthetically stunning websites tailored to accelerate your business growth.",
+      icon: <Zap strokeWidth={1.5} className="w-8 h-8 text-amber-500" />,
+      delay: 0.35
+    },
+    {
+      title: "Enterprise-Grade Security",
+      description: "Your data's safety is our highest priority. We deploy robust network architectures and uncompromising security protocols.",
+      icon: <ShieldCheck strokeWidth={1.5} className="w-8 h-8 text-orange-400" />,
+      delay: 0.5
+    }
+  ];
+
+  return (
+    <section className="relative py-24 md:py-32 overflow-hidden max-w-7xl mx-auto px-6 w-full">
+      
+      {/* Background Glows */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="relative z-10 flex flex-col items-center justify-center mb-16 md:mb-24">
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          className="text-orange-500 text-xs tracking-[0.3em] uppercase font-medium mb-4"
+        >
+          — The FreudeDev Advantage
+        </motion.p>
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ delay: 0.1 }}
+          className="text-4xl md:text-5xl lg:text-6xl font-black text-white text-center leading-tight mb-6"
+        >
+          Built for <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">Excellence</span>
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ delay: 0.2 }}
+          className="text-sm text-zinc-400 text-center max-w-2xl mx-auto leading-relaxed"
+        >
+          We blend technical expertise with creative problem-solving to deliver resilient infrastructure and digital experiences that elevate your business.
+        </motion.p>
+      </div>
+      
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+        {features.map((feature, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, delay: feature.delay, ease: "easeOut" }}
+            className="group relative p-8 md:p-10 rounded-[2rem] bg-zinc-950/60 border border-zinc-800/80 hover:border-orange-500/40 hover:bg-zinc-900/80 transition-all duration-500 overflow-hidden"
+          >
+            {/* Hover Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             
-                * {
-                    font-family: 'Poppins', sans-serif;
-                }
-            `}</style>
-            <h1 className="text-3xl font-semibold text-center mx-auto">Powerful Features</h1>
-            <p className="text-sm text-white text-center mt-2 max-w-md mx-auto">Everything you need to manage, track, and grow your finances, securely and efficiently.</p>
-            
-            <div className="flex items-center justify-center flex-wrap gap-6 mt-20 px-4 md:px-0">
-                <div className="flex flex-col text-center items-center justify-center rounded-xl p-6 border border-orange-200 gap-6 max-w-sm">
-                    <div className="p-6 aspect-square bg-orange-100 rounded-full">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 18.667V24.5m4.668-8.167V24.5m4.664-12.833V24.5m2.333-21L15.578 13.587a.584.584 0 0 1-.826 0l-3.84-3.84a.583.583 0 0 0-.825 0L2.332 17.5M4.668 21v3.5m4.664-8.167V24.5" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-base font-semibold text-white">Real-Time Analytics</h3>
-                        <p className="text-sm text-white">Get instant insights into your finances with live dashboards.</p>
-                    </div>
-                </div>
-                <div className="flex flex-col text-center items-center justify-center rounded-xl p-6 border border-orange-200 gap-6 max-w-sm">
-                    <div className="p-6 aspect-square bg-orange-100 rounded-full">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 11.667A2.333 2.333 0 0 0 11.667 14c0 1.19-.117 2.929-.304 4.667m4.972-3.36c0 2.776 0 7.443-1.167 10.36m5.004-1.144c.14-.7.502-2.683.583-3.523M2.332 14a11.667 11.667 0 0 1 21-7m-21 11.667h.01m23.092 0c.233-2.333.152-6.246 0-7" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M5.832 22.75C6.415 21 6.999 17.5 6.999 14a7 7 0 0 1 .396-2.333m2.695 13.999c.245-.77.525-1.54.665-2.333m-.255-15.4A7 7 0 0 1 21 14v2.333" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-base font-semibold text-white">Bank-Grade Security</h3>
-                        <p className="text-sm text-white">End-to-end encryption, 2FA, compliance with GDPR standards.</p>
-                    </div>
-                </div>
-                <div className="flex flex-col text-center items-center justify-center rounded-xl p-6 border border-orange-200 gap-6 max-w-sm">
-                    <div className="p-6 aspect-square bg-orange-100 rounded-full">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.668 25.666h16.333a2.333 2.333 0 0 0 2.334-2.333V8.166L17.5 2.333H7a2.333 2.333 0 0 0-2.333 2.333v4.667" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M16.332 2.333V7a2.334 2.334 0 0 0 2.333 2.333h4.667m-21 8.167h11.667M10.5 21l3.5-3.5-3.5-3.5" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-base font-semibold text-white">Customizable Reports</h3>
-                        <p className="text-sm text-white">Export professional, audit-ready financial reports for tax or internal review.</p>
-                    </div>
-                </div>
+            <div className="relative z-10 flex flex-col items-start gap-8">
+              <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 group-hover:scale-110 group-hover:border-orange-500/30 transition-transform duration-500 shadow-2xl shadow-black/50">
+                {feature.icon}
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-white group-hover:text-amber-400 transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-zinc-400 leading-relaxed font-medium">
+                  {feature.description}
+                </p>
+              </div>
             </div>
-        </div>
-    );
-};
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}

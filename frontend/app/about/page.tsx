@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import Features from "../components/Features";
 import TeamMember from "../components/TeamMembers";
 import Link from "next/link";
@@ -11,13 +14,19 @@ export default function AboutPage() {
       <section className="flex flex-col md:flex-row items-center justify-center gap-16 lg:gap-24 max-md:px-6 px-8">
 
         {/* Image */}
-        <div className="relative shadow-2xl shadow-orange-600/30 rounded-2xl overflow-hidden shrink-0">
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative shadow-2xl shadow-orange-600/30 rounded-2xl overflow-hidden shrink-0"
+        >
           <Image
-            src="https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?q=80&w=451&h=451&auto=format&fit=crop"
-            alt="FreudeDev team"
+            src="/images/AB-Logo.png"
+            alt="FreudeDev Logo"
             width={451}
             height={451}
-            className="max-w-sm w-full object-cover rounded-2xl"
+            className="max-w-sm w-full object-contain rounded-2xl"
           />
 
           {/* Community badge */}
@@ -43,10 +52,16 @@ export default function AboutPage() {
               Join our growing client community
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Text */}
-        <div className="max-w-lg">
+        <motion.div 
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          className="max-w-lg"
+        >
           <p className="text-orange-500 text-xs tracking-[0.3em] uppercase font-medium mb-4">
             — Who we are
           </p>
@@ -85,11 +100,17 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── SERVICES CTA BANNER ── */}
-      <section className="max-w-5xl mx-auto px-4 w-full">
+      <motion.section 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-5xl mx-auto px-4 w-full"
+      >
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-600 to-amber-500 p-10 md:p-14 text-white text-center">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10"
@@ -120,7 +141,7 @@ export default function AboutPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── FEATURES + TEAM ── */}
       <Features />

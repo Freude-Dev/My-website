@@ -10,6 +10,7 @@ import FAQ from "./components/FAQ";
 import RatingStars from "./components/rating";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
+import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
@@ -38,7 +39,13 @@ export default function Home() {
         <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-20 lg:items-center">
 
           {/* LEFT — Testimonials Swiper */}
-          <div className="relative w-full">
+          <motion.div 
+            className="relative w-full"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
             <p className="text-orange-500 text-xs tracking-[0.3em] uppercase font-medium mb-4">
               — What clients say
             </p>
@@ -95,10 +102,16 @@ export default function Home() {
                 </SwiperSlide>
               ))}
             </Swiper>
-          </div>
+          </motion.div>
 
           {/* RIGHT — Real Stats */}
-          <div className="mt-16 lg:mt-0 relative">
+          <motion.div 
+            className="mt-16 lg:mt-0 relative"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+          >
             <DashedCircle
               className="absolute -top-10 -right-10 z-0 opacity-30"
               width={300} height={300} cx={150} cy={150}
@@ -112,8 +125,12 @@ export default function Home() {
 
             <ul className="relative z-10 grid grid-cols-2 border border-zinc-800 rounded-2xl overflow-hidden">
               {STATS.map((stat, i) => (
-                <li
+                <motion.li
                   key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.4 + (i * 0.1) }}
                   className={`flex flex-col p-6 sm:p-8 bg-zinc-950/60 hover:bg-zinc-900/60 transition-colors duration-300 ${
                     i % 2 === 0 ? "border-r border-zinc-800" : ""
                   } ${i < 2 ? "border-b border-zinc-800" : ""}`}
@@ -123,15 +140,32 @@ export default function Home() {
                   </div>
                   <p className="text-white font-semibold text-sm">{stat.label}</p>
                   <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{stat.sub}</p>
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <FAQ />
-      <Footer />
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="w-full flex justify-center"
+      >
+        <FAQ />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="w-full"
+      >
+        <Footer />
+      </motion.div>
     </div>
   );
 }

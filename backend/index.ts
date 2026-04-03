@@ -43,11 +43,11 @@ app.use(
 )
 app.use(globalLimiter)
 
-// ─── CORS ────────────────────────────────────────────────────────────────────
 
 const envOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_URLS,
+  "http://localhost:3000"
 ]
   .filter(Boolean)
   .flatMap((value) => (value as string).split(","))

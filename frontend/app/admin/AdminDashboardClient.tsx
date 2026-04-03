@@ -204,7 +204,6 @@ export default function AdminDashboardClient({
   const [activeTab, setActiveTab] = useState<'inquiries' | 'newsletter' | 'waitlist'>('inquiries');
   const [revenueFilter, setRevenueFilter] = useState<RevenueFilter>('monthly');
 
-  // ── Revenue calculations ──
   const totalRevenue = allProjects.reduce((sum, p) => sum + (p.total_price || 0), 0);
 
   const now = new Date();
@@ -271,25 +270,7 @@ export default function AdminDashboardClient({
   return (
     <div className="space-y-8">
 
-      {/* ── STAT CARDS ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card, i) => (
-          <Link href={card.href} key={i}>
-            <div className={`bg-zinc-900 border border-zinc-800 ${card.border} p-6 rounded-2xl transition-all cursor-pointer group`}>
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl ${card.bg} ${card.color}`}>
-                  <card.icon size={22} />
-                </div>
-                <div className="flex items-center gap-1 text-xs font-medium text-green-400 bg-green-400/10 px-2 py-1 rounded-full">
-                  <Activity size={10} /> Live
-                </div>
-              </div>
-              <h3 className="text-zinc-400 text-sm font-medium">{card.label}</h3>
-              <p className={`text-3xl font-bold mt-1 transition-colors ${card.color}`}>{card.value}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      
 
       {/* ── REVENUE SUMMARY CARDS ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -590,6 +571,25 @@ export default function AdminDashboardClient({
         </div>
       </div>
 
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cards.map((card, i) => (
+          <Link href={card.href} key={i}>
+            <div className={`bg-zinc-900 border border-zinc-800 ${card.border} p-6 rounded-2xl transition-all cursor-pointer group`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-xl ${card.bg} ${card.color}`}>
+                  <card.icon size={22} />
+                </div>
+                <div className="flex items-center gap-1 text-xs font-medium text-green-400 bg-green-400/10 px-2 py-1 rounded-full">
+                  <Activity size={10} /> Live
+                </div>
+              </div>
+              <h3 className="text-zinc-400 text-sm font-medium">{card.label}</h3>
+              <p className={`text-3xl font-bold mt-1 transition-colors ${card.color}`}>{card.value}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

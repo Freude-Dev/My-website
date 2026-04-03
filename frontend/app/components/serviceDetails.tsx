@@ -199,7 +199,7 @@ export default function Service() {
   const [activeService, setActiveService] = useState<ServiceType | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [glowVisible, setGlowVisible] = useState(false);
-  const [step, setStep] = useState<Step>("service");
+  const [step, setStep] = useState<Step>("contact");
   const [contact, setContact] = useState<ContactForm>({ name: "", email: "", phone: "" });
   const [sending, setSending] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
@@ -226,7 +226,7 @@ export default function Service() {
         setActiveService(null);
         setSelected([]);
         setGlowVisible(false);
-        setStep("service");
+        setStep("contact");
         setContact({ name: "", email: "", phone: "" });
         setPdfBlob(null);
         setPdfBase64("");
@@ -248,12 +248,14 @@ export default function Service() {
 
   const total = selected.reduce((sum, i) => sum + (activeService?.prices[i] ?? 0), 0);
 
-  // Step 1 → 2: open contact form
-  const handleRequestPackage = () => setStep("contact");
+  const handleProceedToServices = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep("service");
+  };
 
   // Step 2 → 3: generate PDF then show share options
-  const handleGeneratePDF = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGeneratePDF = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!activeService) return;
     setSending(true);
     try {
@@ -393,7 +395,7 @@ export default function Service() {
         {data.services.map((item, i) => (
           <button
             key={item.id}
-            onClick={() => { setActiveService(item); setStep("service"); }}
+            onClick={() => { setActiveService(item); setStep("contact"); }}
             className="card-enter group relative text-left rounded-2xl overflow-hidden border border-zinc-800 hover:border-orange-500/50 transition-all duration-500 bg-zinc-950"
             style={{ animationDelay: `${i * 0.12}s`, opacity: 0 }}
           >
@@ -536,38 +538,27 @@ export default function Service() {
                         </div>
                       </div>
 
-                      <button onClick={handleRequestPackage} disabled={selected.length === 0}
-                        className={`mt-6 w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${selected.length > 0 ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:from-orange-500 hover:to-amber-400 shadow-lg shadow-orange-900/40" : "bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800"}`}>
-                        {selected.length === 0 ? "Select services to continue" : "Request this package →"}
+                      <button onClick={handleGeneratePDF} disabled={selected.length === 0 || sending}
+                        className={`mt-6 w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${(selected.length > 0 && !sending) ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:from-orange-500 hover:to-amber-400 shadow-lg shadow-orange-900/40" : "bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800"}`}>
+                        {sending ? (
+                          <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> Generating PDF...</>
+                        ) : (selected.length === 0 ? "Select services to continue" : "Generate Quote PDF →")}
                       </button>
                     </>
                   )}
 
                   {step === "contact" && (
-                    <form onSubmit={handleGeneratePDF} className="flex flex-col h-full">
+                    <form onSubmit={handleProceedToServices} className="flex flex-col h-full">
                       <div className="flex items-center justify-between mb-8">
                         <div>
                           <h3 className="text-white font-black text-xl">Your details</h3>
-                          <p className="text-zinc-500 text-xs mt-1">We'll use this to prepare your quote</p>
+                          <p className="text-zinc-500 text-xs mt-1">Please enter your details to continue</p>
                         </div>
-                        <button type="button" onClick={() => setStep("service")} className="text-zinc-600 hover:text-white transition p-2 rounded-lg hover:bg-zinc-800 text-xs font-mono">
-                          ← Back
+                        <button type="button" onClick={handleClose} className="text-zinc-600 hover:text-white transition p-2 rounded-lg hover:bg-zinc-800">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                         </button>
-                      </div>
-
-                      {/* Quote summary */}
-                      <div className="bg-zinc-900 rounded-xl p-4 mb-6 border border-zinc-800">
-                        <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-2">Your selection</p>
-                        {selected.map((i) => (
-                          <div key={i} className="flex justify-between text-xs py-1">
-                            <span className="text-zinc-300">{activeService.subservices[i]}</span>
-                            <span className="text-orange-400 font-mono">{activeService.prices[i].toLocaleString()} FCFA</span>
-                          </div>
-                        ))}
-                        <div className="flex justify-between border-t border-zinc-700 mt-2 pt-2">
-                          <span className="text-xs font-black text-white uppercase tracking-wider">Total</span>
-                          <span className="text-orange-400 font-black text-sm">{total.toLocaleString()} FCFA</span>
-                        </div>
                       </div>
 
                       <div className="space-y-4 flex-1">
@@ -591,11 +582,9 @@ export default function Service() {
                         </div>
                       </div>
 
-                      <button type="submit" disabled={sending}
-                        className="mt-6 w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:from-orange-500 hover:to-amber-400 shadow-lg shadow-orange-900/40 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
-                        {sending ? (
-                          <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> Generating PDF...</>
-                        ) : "Generate Quote PDF →"}
+                      <button type="submit"
+                        className="mt-6 w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-gradient-to-r from-orange-600 to-amber-500 text-white hover:from-orange-500 hover:to-amber-400 shadow-lg shadow-orange-900/40 transition-all duration-300 flex items-center justify-center gap-2">
+                        Continue to Services →
                       </button>
                     </form>
                   )}
