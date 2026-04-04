@@ -282,6 +282,26 @@ export default function Navbar() {
             onClick={(e) => e.stopPropagation()}
             className="relative w-[95vw] max-w-2xl mx-4 border-2 border-orange-500 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.5)] overflow-hidden"
           >
+            {/* Close Button - Visible on Mobile */}
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 z-20 md:hidden size-8 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-full border border-white/20 text-white hover:bg-black/70 transition-colors"
+              aria-label="Close modal"
+            >
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 16 16" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M12 4L4 12M4 4l8 8" />
+              </svg>
+            </button>
+
             {/* Orange Glow Background */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none size-140 bg-orange-500/20 rounded-full blur-[200px] animate-pulse"></div>
 
