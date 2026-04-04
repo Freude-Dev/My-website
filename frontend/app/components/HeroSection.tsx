@@ -34,7 +34,10 @@ export default function HeroSection() {
                 </p>
 
                 <div className='flex gap-3 mt-10'>
-                    <Button className="bg-orange-500 hover:bg-orange-500 hover:shadow-[0px_0px_10px_2px] shadow-orange-400 text-white text-xs md:text-sm px-5 py-3 rounded-lg transition cursor-pointer">
+                    <Button 
+                        onClick={() => window.dispatchEvent(new Event("openContactModal"))}
+                        className="bg-orange-500 hover:bg-orange-500 hover:shadow-[0px_0px_10px_2px] shadow-orange-400 text-white text-xs md:text-sm px-5 py-3 rounded-lg transition cursor-pointer"
+                    >
                         Contact Us
                     </Button>
                 </div>

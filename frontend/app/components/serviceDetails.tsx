@@ -54,141 +54,171 @@ async function generateQuotePDF(
   const margin = 20;
   let y = 0;
 
-  doc.setFillColor(10, 10, 10);
-  doc.rect(0, 0, W, 50, "F");
-
-  doc.setFillColor(249, 115, 22);
-  doc.rect(0, 0, 4, 50, "F");
-
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text("FreudeDev", margin + 4, 20);
-
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(161, 161, 170);
-  doc.text("IT Maintenance  •  Web Design  •  Network Administration", margin + 4, 28);
-
-  doc.setFontSize(10);
-  doc.setTextColor(249, 115, 22);
-  doc.setFont("helvetica", "bold");
-  doc.text("SERVICE QUOTE", W - margin, 20, { align: "right" });
-
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(161, 161, 170);
-  doc.text(new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }), W - margin, 28, { align: "right" });
-
-  y = 62;
-
-  doc.setFillColor(24, 24, 27);
-  doc.roundedRect(margin, y, W - margin * 2, 36, 3, 3, "F");
-
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(249, 115, 22);
-  doc.text("PREPARED FOR", margin + 6, y + 8);
-
-  doc.setFontSize(13);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(255, 255, 255);
-  doc.text(contact.name, margin + 6, y + 18);
-
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(161, 161, 170);
-  doc.text(`${contact.email}   •   ${contact.phone}`, margin + 6, y + 27);
-
-  y += 48;
-
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(249, 115, 22);
-  doc.text("SERVICE REQUESTED", margin, y);
-  y += 6;
-
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(255, 255, 255);
-  doc.text(service.name, margin, y);
-  y += 5;
-
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(113, 113, 122);
-  doc.text(service.description, margin, y);
-  y += 12;
-
-  doc.setDrawColor(39, 39, 42);
-  doc.setLineWidth(0.5);
-  doc.line(margin, y, W - margin, y);
-  y += 10;
-
-  doc.setFillColor(24, 24, 27);
-  doc.rect(margin, y, W - margin * 2, 10, "F");
-
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(113, 113, 122);
-  doc.text("SUBSERVICE", margin + 4, y + 7);
-  doc.text("PRICE (FCFA)", W - margin - 4, y + 7, { align: "right" });
-  y += 14;
-
-  selectedIndexes.forEach((idx, i) => {
-    const isEven = i % 2 === 0;
-    if (isEven) {
-      doc.setFillColor(18, 18, 20);
-      doc.rect(margin, y - 4, W - margin * 2, 12, "F");
+  // Helper to fetch local public images as base64 for embedding
+  const getBase64 = async (url: string): Promise<string | null> => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
     }
+  };
 
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(228, 228, 231);
-    doc.text(service.subservices[idx], margin + 4, y + 3);
+  const logoLeft = await getBase64("/images/PDF-Logo.png");
+  const logoRight = await getBase64("/images/PROFORMA.png");
 
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(249, 115, 22);
-    doc.text(service.prices[idx].toLocaleString(), W - margin - 4, y + 3, { align: "right" });
+  // If local dev environment lacks images, just securely skip
+  if (logoLeft) doc.addImage(logoLeft, "PNG", margin, 15, 35, 35, undefined, "FAST");
+  if (logoRight) doc.addImage(logoRight, "PNG", W - margin - 75, 15, 75, 35, undefined, "FAST");
 
-    y += 12;
-  });
+  y = 55;
 
-  y += 4;
-
-  doc.setDrawColor(39, 39, 42);
-  doc.line(margin, y, W - margin, y);
+  // Adressé au client
+  doc.setFontSize(10);
+  doc.setTextColor(50, 50, 50);
+  doc.setFont("helvetica", "normal");
+  doc.text("Adressé au client/entreprise", margin, y);
   y += 8;
 
-  doc.setFillColor(249, 115, 22);
-  doc.roundedRect(W - margin - 70, y, 70, 18, 2, 2, "F");
-
-  doc.setFontSize(8);
+  // Client Name (Orange, Bold)
+  doc.setFontSize(22);
+  doc.setTextColor(232, 112, 42); // #E8702A
   doc.setFont("helvetica", "bold");
+  doc.text(contact.name.toUpperCase(), margin, y);
+  
+  // Underline beneath client name
+  y += 3;
+  doc.setDrawColor(232, 112, 42);
+  doc.setLineWidth(1);
+  doc.line(margin, y, margin + 85, y);
+
+  y += 10;
+  doc.setFontSize(11);
+  doc.setTextColor(50, 50, 50);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Tel : ${contact.phone}`, margin, y);
+  y += 7;
+  doc.text(`E-mail : ${contact.email}`, margin, y);
+
+  // ID and Date (placed to align with Client block but pushed right)
+  let rightY = 62;
+  const quoteId = `00000${Math.floor(Math.random() * 100)}`;
+  doc.setTextColor(50, 50, 50);
+  doc.setFontSize(11);
+  doc.text(`ID : ${quoteId}`, W - margin - 50, rightY);
+  rightY += 8;
+  doc.text(`Date : ${new Date().toLocaleDateString("en-GB")}`, W - margin - 50, rightY);
+
+  // Service Row
+  y = 95;
+  doc.setFontSize(11);
+  doc.setTextColor(40, 40, 40);
+  doc.setFont("helvetica", "normal");
+  doc.text("Service : ", margin, y);
+  
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(service.name, margin + 17, y);
+
+  y += 6;
+
+  // Table Header
+  doc.setFillColor(232, 112, 42); // Orange #E8702A
+  doc.rect(margin, y, 115, 10, "F");
+  
+  doc.setFillColor(18, 42, 62); // Dark Navy #122A3E
+  doc.rect(margin + 115, y, 55, 10, "F");
+
+  doc.setTextColor(0, 0, 0); // Black for left header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("Details des services", margin + 57.5, y + 6.5, { align: "center" });
+
+  doc.setTextColor(255, 255, 255); // White for right header
+  doc.text("Montant", margin + 142.5, y + 6.5, { align: "center" });
+
+  y += 10;
+  
+  // Table Rows
+  doc.setDrawColor(30, 30, 30);
+  doc.setLineWidth(0.2);
+
+  selectedIndexes.forEach((idx) => {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(50, 50, 50);
+    
+    // Auto-wrap text inside the 115mm width
+    const textLines = doc.splitTextToSize(service.subservices[idx], 110);
+    const rowH = Math.max(10, textLines.length * 5 + 4);
+
+    if (y + rowH > 260) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.rect(margin, y, 115, rowH, "S");
+    doc.rect(margin + 115, y, 55, rowH, "S");
+
+    doc.text(textLines, margin + 3, y + 6.5);
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    
+    doc.text(`${service.prices[idx].toLocaleString()}`, margin + 142.5, y + (rowH / 2) + 1.5, { align: "center" });
+
+    y += rowH;
+  });
+
+  // Table Total Row
+  if (y + 12 > 260) {
+    doc.addPage();
+    y = 20;
+  }
+  doc.setFillColor(18, 42, 62);
+  doc.rect(margin, y, 170, 14, "F");
+  
   doc.setTextColor(255, 255, 255);
-  doc.text("TOTAL", W - margin - 65, y + 7);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("Total", margin + 4, y + 9, { align: "left" });
 
-  doc.setFontSize(13);
-  doc.text(`${total.toLocaleString()} FCFA`, W - margin - 4, y + 13, { align: "right" });
-
+  doc.text(`${total.toLocaleString()} FCFA`, margin + 142.5, y + 9, { align: "center" });
+  
   y += 30;
 
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(113, 113, 122);
-  doc.text("This quote is valid for 30 days. Prices are estimates and may vary based on project scope.", margin, y);
-  y += 5;
-  doc.text("Contact us to finalise your order and schedule a consultation.", margin, y);
+  if (y + 45 > 280) {
+    doc.addPage();
+    y = 20;
+  }
 
-  doc.setFillColor(10, 10, 10);
-  doc.rect(0, 282, W, 15, "F");
-  doc.setFillColor(249, 115, 22);
-  doc.rect(0, 282, 4, 15, "F");
+  // Footer / Notes Start
+  doc.setTextColor(232, 112, 42); // Orange
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Conditions & Termes/Notes", margin, y);
+  
+  doc.setFontSize(12);
+  doc.text("Mode de paiement", W - margin - 60, y);
 
-  doc.setFontSize(8);
+  y += 8;
+
+  doc.setTextColor(70, 70, 70);
+  doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(113, 113, 122);
-  doc.text("FreudeDev  •  +237 650 812 141  •  Efficient Services at your disposal", W / 2, 291, { align: "center" });
+  
+  const termsText = "Les différentes opérations ainsi que les\ntransactions électroniques seront notifiées auprès\ndes clients jusqu'à ce que le travail soit terminé. Le\nprestataire n'est en aucun cas responsable de\nl'appareil si le client ne le récupère pas après 72\nheures";
+  
+  doc.text(termsText, margin, y);
+
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.text("MOMO : 6 50 81 21 41", W - margin - 60, y);
 
   const base64 = doc.output("datauristring").split(",")[1];
   const blob = doc.output("blob");

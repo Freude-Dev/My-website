@@ -61,6 +61,12 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, [submitStatus]);
 
+  useEffect(() => {
+    const handleOpenContact = () => setShowModal(true);
+    window.addEventListener("openContactModal", handleOpenContact);
+    return () => window.removeEventListener("openContactModal", handleOpenContact);
+  }, []);
+
   const closeModal = () => {
     if (!modalRef.current || !backdropRef.current) return;
 
@@ -82,25 +88,62 @@ export default function Navbar() {
   const handleSubmitMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fullName = `${firstName} ${lastName}`.trim() || "No name provided";
+    
+    // Basic validation
+    if (!email || !message) {
+      setSubmitStatus("error");
+      setSubmitMessage("Please fill in all required fields.");
+      return;
+    }
+    
     setSubmitStatus("idle");
     setSubmitMessage("");
     setSending(true);
+    
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+      // Real API call with fallback
+      let apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      
+      // Fallback for different environments
+      if (!apiUrl) {
+        if (typeof window !== 'undefined') {
+          // Browser environment - use current origin
+          apiUrl = window.location.origin;
+        } else {
+          // Server environment - use localhost:3000
+          apiUrl = 'http://localhost:3000';
+        }
+      }
+      
+      console.log('Sending to API:', `${apiUrl}/api/contact`);
+      
+      // Prepare the data exactly as the backend expects
+      const requestData = {
+        name: fullName,
+        email: email.trim(),
+        phone: phone ? `${countryCode} ${phone}`.trim() : '',
+        subject: `Website Contact - ${fullName}`,
+        message: message.trim(),
+      };
+      
+      console.log('Request data:', requestData);
+      
+      const res = await fetch(`${apiUrl}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: fullName,
-          email,
-          phone: `${countryCode} ${phone}`.trim(),
-          subject: `Website Contact - ${fullName}`,
-          message,
-        }),
+        body: JSON.stringify(requestData),
       });
 
-      const data = await res.json();
+      // Try to parse error details from the server response
+      const data = await res.json().catch(() => ({})); 
+      console.log('Response status:', res.status);
+      console.log('Response data:', data);
+      
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to send message");
+        // Log the specific error from the backend to the console for easier debugging
+        console.error('Backend Error:', data);
+        const errorMessage = data?.details?.[0] || data?.error || data?.message || "Server error occurred";
+        throw new Error(errorMessage);
       }
 
       setSubmitStatus("success");
@@ -111,6 +154,12 @@ export default function Navbar() {
       setCountryCode("CM");
       setPhone("");
       setMessage("");
+      
+      // Close modal after successful submission
+      setTimeout(() => {
+        closeModal();
+      }, 2000);
+      
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to send message. Please try again.";
       setSubmitStatus("error");
@@ -243,7 +292,7 @@ export default function Navbar() {
               
               <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 md:gap-6 mt-4 md:mt-0">
                 <span className="text-orange-400 font-medium text-xs md:text-sm uppercase tracking-wide">
-                  Book Your Free Consultation
+                  Book Your Consultation
                 </span>
 
                 <h1 className="text-2xl md:text-4xl font-bold text-white leading-snug max-w-full md:max-w-[420px]">
@@ -251,7 +300,7 @@ export default function Navbar() {
                 </h1>
 
                 <p className="text-white/80 text-sm md:text-base max-w-full md:max-w-[400px]">
-                  Our team of expert networkers and designers will optimize elevates your brand, engages your audience, and drives conversions. Let’s build something extraordinary together.
+                  Let's help you improve your website's performance and reach your target audience. We use the latest technologies to deliver high-quality and user-friendly websites that drive conversions and increase your online presence. Let's create something amazing together.
                 </p>
 
                 <div className="flex items-center justify-center gap-2 mt-4">

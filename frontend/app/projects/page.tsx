@@ -443,7 +443,7 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      <div ref={pageRef} className="hidden md:flex h-[calc(100vh-80px)] mt-20 mx-4 md:mx-8 lg:mx-40 overflow-hidden bg-black text-white">
+      <div ref={pageRef} className="hidden md:flex h-[calc(100vh-80px)] mt-20 mx-4 md:mx-8 lg:mx-20 overflow-hidden bg-black/70 text-white">
 
         {/* LEFT PANEL */}
         <aside className="w-[300px] shrink-0 flex flex-col px-8 py-16 border-r border-zinc-800 relative overflow-hidden" style={{ scrollbarWidth: "none" }}>

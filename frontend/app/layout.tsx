@@ -4,6 +4,8 @@ import PageTransition from "./components/pageTransition";
 import localFont from 'next/font/local'
 import { Analytics } from "@vercel/analytics/next"
 import NavbarWrapper from "./components/NavbarWrapper";
+import SPALayout from "./components/SPALayout";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 const tommy = localFont({
   src: [
@@ -65,14 +67,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${tommy.variable} font-sans antialiased bg-black text-white`}>
-        {/* Navbar Container */}
-        <div className="flex justify-center items-center p-4 absolute top-0 w-full z-50">
-          <NavbarWrapper />
-        </div>
-        {/* Animated Content Area */}
-        <main className="min-h-full">
-          <PageTransition>{children}</PageTransition>
-        </main>
+        <LanguageProvider>
+          {/* Navbar Container */}
+          <div className="flex justify-center items-center p-4 absolute top-0 w-full z-50">
+            <NavbarWrapper />
+          </div>
+          {/* SPA Layout */}
+          <SPALayout />
+          {/* Animated Content Area - for admin routes */}
+          <main className="min-h-full" style={{ display: 'none' }}>
+            <PageTransition>{children}</PageTransition>
+          </main>
+          <Analytics />
+        </LanguageProvider>
       </body>
     </html>
   );

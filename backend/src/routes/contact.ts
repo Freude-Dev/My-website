@@ -13,8 +13,12 @@ const contactSchema = z.object({
 })
 
 router.post('/', async (req: Request, res: Response) => {
+  console.log('=== Backend Contact API Called ===')
+  console.log('Request body:', req.body)
+  
   const parsed = contactSchema.safeParse(req.body)
   if (!parsed.success) {
+    console.log('Validation failed:', parsed.error.issues)
     res.status(400).json({
       error: 'Invalid request payload',
       details: parsed.error.issues.map((i) => i.message),
@@ -22,13 +26,36 @@ router.post('/', async (req: Request, res: Response) => {
     return
   }
   const { name, email, subject, message, phone } = parsed.data
+  console.log('Parsed data:', { name, email, subject: subject?.substring(0, 50), message: message?.substring(0, 50) + '...', phone })
 
-  const { error } = await supabase
-    .from('contact_messages')
-    .insert([{ name, email, subject, message }])
+  console.log('Environment check:')
+  console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+  console.log('SUPABASE_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_SECRET_KEY)
 
-  if (error) {
-    res.status(500).json({ error: 'Server error' })
+  try {
+    const { error, data } = await supabase
+      .from('contact_messages')
+      .insert([{ name, email, subject, message }])
+      .select()
+
+    console.log('Supabase response:', { error, data })
+
+    if (error) {
+      console.error('Supabase error details:', error)
+      res.status(500).json({ 
+        error: 'Database error',
+        details: error.message 
+      })
+      return
+    }
+
+    console.log('Data saved to database successfully')
+  } catch (dbError: any) {
+    console.error('Database connection error:', dbError)
+    res.status(500).json({ 
+      error: 'Database connection error',
+      details: dbError.message 
+    })
     return
   }
 
@@ -44,12 +71,12 @@ router.post('/', async (req: Request, res: Response) => {
     const toEmail = process.env.CONTACT_RECEIVER_EMAIL || 'freudedev@gmail.com'
 
     await transporter.sendMail({
-      from: `"FreudeDev Website" <${process.env.GMAIL_USER}>`,
+      from: `"${name}" <${process.env.GMAIL_USER}>`,  
       to: toEmail,
-      replyTo: email,
-      subject: subject || `New contact message from ${name}`,
+      replyTo: email,  
+      subject: subject || `Contact from ${name} via FreudeDev Website`,
       text: `
-New contact form submission
+You have received a new message from ${name} via the FreudeDev website.
 
 Name: ${name}
 Email: ${email}
@@ -57,10 +84,15 @@ Phone: ${phone || 'Not provided'}
 
 Message:
 ${message}
+
+---
+This message was sent from the FreudeDev contact form.
+To reply, simply reply to this email and it will go directly to ${email}.
       `.trim(),
     })
 
-    res.status(201).json({ message: 'Message sent successfully 🙌' })
+    console.log('Email sent successfully to:', toEmail)
+    res.status(201).json({ message: 'Message sent successfully ' })
   } catch (mailError) {
     console.error('Contact email send error:', mailError)
     res.status(500).json({ error: 'Message saved, but email send failed' })
