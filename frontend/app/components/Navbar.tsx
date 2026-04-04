@@ -280,7 +280,7 @@ export default function Navbar() {
           <div
             ref={modalRef}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-6xl mx-4 border-2 border-orange-500 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.5)] overflow-hidden"
+            className="relative w-[95vw] max-w-2xl mx-4 border-2 border-orange-500 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.5)] overflow-hidden"
           >
             {/* Orange Glow Background */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none size-140 bg-orange-500/20 rounded-full blur-[200px] animate-pulse"></div>
@@ -288,86 +288,87 @@ export default function Navbar() {
             
             
 
-            <section className="flex flex-col md:flex-row justify-center px-4 py-12 gap-6 md:gap-10 relative z-10">
+            <section className="flex flex-col justify-center px-4 py-8 md:py-12 gap-4 md:gap-6 relative z-10">
               
-              <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 md:gap-6 mt-4 md:mt-0">
-                <span className="text-orange-400 font-medium text-xs md:text-sm uppercase tracking-wide">
+              <div className="flex flex-col items-center justify-center text-center gap-3 md:gap-4 mt-2 md:mt-0">
+                <span className="text-orange-400 font-medium text-xs uppercase tracking-wide">
                   Book Your Consultation
                 </span>
 
-                <h1 className="text-2xl md:text-4xl font-bold text-white leading-snug max-w-full md:max-w-[420px]">
+                <h1 className="text-xl md:text-2xl font-bold text-white leading-snug max-w-full md:max-w-[320px]">
                   Ready to Transform Your Digital Experience?
                 </h1>
 
-                <p className="text-white/80 text-sm md:text-base max-w-full md:max-w-[400px]">
+                <p className="text-white/80 text-xs md:text-sm leading-relaxed">
                   Let's help you improve your website's performance and reach your target audience. We use the latest technologies to deliver high-quality and user-friendly websites that drive conversions and increase your online presence. Let's create something amazing together.
                 </p>
 
-                <div className="flex items-center justify-center gap-2 mt-4">
+                {/* Hide user images on mobile to save space */}
+                <div className="hidden md:flex items-center justify-center gap-2 mt-3">
                   <img
-                    className="size-6 md:size-7 rounded-full border border-orange-500"
+                    className="size-8 md:size-6 rounded-full border border-orange-500"
                     src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=50"
                     alt="user1"
                   />
                   <img
-                    className="size-6 md:size-7 rounded-full border border-orange-500 -translate-x-2"
+                    className="size-8 md:size-6 rounded-full border border-orange-500 -translate-x-2"
                     src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=50"
                     alt="user2"
                   />
                   <img
-                    className="size-6 md:size-7 rounded-full border border-orange-500 -translate-x-4"
+                    className="size-8 md:size-6 rounded-full border border-orange-500 -translate-x-4"
                     src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=50&h=50&auto=format&fit=crop"
                     alt="user3"
                   />
-                  <p className="-translate-x-2 text-xs md:text-sm text-white/70">
+                  <p className="hidden md:block -translate-x-2 text-xs md:text-sm text-white/70">
                     Join a community of 1M+ founders
                   </p>
                 </div>
               </div>
 
-              <div className="flex-1 w-full md:max-w-md rounded-xl bg-[#FF7F00]/10 backdrop-blur-sm border border-white/10 p-6 md:p-8 z-10 overflow-y-auto max-h-[90vh] relative">
-                <form onSubmit={handleSubmitMessage} className="space-y-4 md:space-y-6 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <div className="flex-1 w-full rounded-xl bg-[#FF7F00]/10 backdrop-blur-sm border border-white/10 p-4 md:p-6 z-10 overflow-y-auto max-h-[85vh] md:max-h-[90vh] relative">
+                <form onSubmit={handleSubmitMessage} className="space-y-3 md:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                     <div>
-                      <label className="block text-sm text-white mb-1">First name</label>
+                      <label className="block text-xs md:text-sm text-white mb-1">First name</label>
                       <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="David"
-                        className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                        className="w-full px-2 py-1.5 md:px-3 md:py-2 border border-white/20 rounded-lg text-xs md:text-sm outline-none focus:border-orange-500 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-white mb-1">Last name</label>
+                      <label className="block text-xs md:text-sm text-white mb-1">Last name</label>
                       <input
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Andrew"
-                        className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                        className="w-full px-2 py-1.5 md:px-3 md:py-2 border border-white/20 rounded-lg text-xs md:text-sm outline-none focus:border-orange-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-white mb-1">Email id</label>
+                    <label className="block text-xs md:text-sm text-white mb-1">Email id</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="david@company.com"
-                      className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none focus:border-orange-500 transition-colors"
+                      className="w-full px-2 py-1.5 md:px-3 md:py-2 border border-white/20 rounded-lg text-xs md:text-sm outline-none focus:border-orange-500 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-white mb-1">Phone number</label>
+                    <label className="block text-xs md:text-sm text-white mb-1">Phone number</label>
                     <div className="flex border border-white/20 rounded-lg overflow-hidden focus-within:border-orange-500 transition-colors">
                       <select
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="px-2 md:px-3 py-2 md:py-3 text-sm outline-none cursor-pointer text-white bg-black/10 border-r border-white/20"
+                        className="px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm outline-none cursor-pointer text-white bg-black/10 border-r border-white/20"
                       >
                         <option>CM</option>
                         <option>US</option>
@@ -378,33 +379,33 @@ export default function Navbar() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+237 123456789"
-                        className="flex-1 px-2 md:px-3 py-2 md:py-3 text-sm outline-none text-white bg-black/10"
+                        className="flex-1 px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm outline-none text-white bg-black/10"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-white mb-1">Message</label>
+                    <label className="block text-xs md:text-sm text-white mb-1">Message</label>
                     <textarea
-                      rows={4}
+                      rows={3}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="w-full px-3 py-2 md:py-3 border border-white/20 rounded-lg text-sm outline-none resize-y focus:border-orange-500 transition-colors text-white bg-black/10"
+                      className="w-full px-2 py-1.5 md:px-3 md:py-2 border border-white/20 rounded-lg text-xs md:text-sm outline-none resize-y focus:border-orange-500 transition-colors text-white bg-black/10"
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <input type="checkbox" className="w-5 h-5 cursor-pointer accent-orange-500 rounded-[5px]" />
-                    <label className="text-sm text-white cursor-pointer">
+                  <div className="flex items-center gap-2 mb-3">
+                    <input type="checkbox" className="w-4 h-4 cursor-pointer accent-orange-500 rounded-[5px]" />
+                    <label className="text-xs text-white cursor-pointer">
                       You agree to our <span className="underline">terms</span> and <span className="underline">privacy policy</span>.
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button
                       type="submit"
                       disabled={sending}
-                      className="w-full py-3.5 bg-gradient-to-br from-orange-700 to-orange-500 text-white rounded-lg text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(255,127,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-2.5 md:py-3 bg-gradient-to-br from-orange-700 to-orange-500 text-white rounded-lg text-xs md:text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(255,127,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sending ? "Sending..." : "Send message"}
                     </button>
@@ -413,16 +414,16 @@ export default function Navbar() {
                       href={`https://wa.me/${WHATSAPP_NUMBER}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-3.5 bg-[#25D366] text-white rounded-lg text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(37,211,102,0.25)] flex items-center justify-center gap-2"
+                      className="w-full py-2.5 md:py-3 bg-[#25D366] text-white rounded-lg text-xs md:text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(37,211,102,0.25)] flex items-center justify-center gap-1 md:gap-2"
                     >
-                      <SiWhatsapp className="text-base" />
-                      Chat on WhatsApp
+                      <SiWhatsapp className="text-sm md:text-base" />
+                      <span className="hidden md:inline">Chat on WhatsApp</span>
                     </a>
                   </div>
 
                   {submitStatus !== "idle" && (
                     <p
-                      className={`text-sm ${
+                      className={`text-xs md:text-sm ${
                         submitStatus === "success" ? "text-green-400" : "text-red-400"
                       }`}
                     >
