@@ -8,6 +8,7 @@ import HeroSection from "./components/HeroSection";
 import Footer from "./components/footer";
 import FAQ from "./components/FAQ";
 import RatingStars from "./components/rating";
+import Avatar from "./components/Avatar";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import { motion } from "framer-motion";
@@ -78,13 +79,10 @@ export default function Home() {
 
                       <footer className="mt-5">
                         <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700 shrink-0">
-                            <img
-                              src={item.photo || "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100"}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
+                          <Avatar 
+                            name={item.name}
+                            alt={item.name}
+                          />
                           <div>
                             <div className="font-semibold text-white text-sm flex items-center gap-2">
                               {item.name}
