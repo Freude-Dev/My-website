@@ -12,6 +12,7 @@ export default function CursorTrail() {
   const [trail, setTrail] = useState<TrailPoint[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const trailLength = 8;
+  
   const pointIdRef = useRef(0);
 
   useEffect(() => {
