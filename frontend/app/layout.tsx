@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-// import PageTransition from "./components/PageTransition";
+import PageTransition from "./components/PageTransition";
 import localFont from 'next/font/local'
 import { Analytics } from "@vercel/analytics/next"
 import NavbarWrapper from "./components/NavbarWrapper";
