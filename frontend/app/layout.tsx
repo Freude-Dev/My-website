@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import PageTransition from "./components/pageTransition";
+import PageTransition from "./components/PageTransition";
 import localFont from 'next/font/local'
 import { Analytics } from "@vercel/analytics/next"
 import NavbarWrapper from "./components/NavbarWrapper";
 import SPALayout from "./components/SPALayout";
 import { LanguageProvider } from "./components/LanguageProvider";
+import CursorTrail from "./components/CursorTrail";
 
 const tommy = localFont({
   src: [
@@ -68,6 +69,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${tommy.variable} font-sans antialiased bg-black text-white`}>
         <LanguageProvider>
+          <CursorTrail />
           {/* Navbar Container */}
           <div className="flex justify-center items-center p-4 absolute top-0 w-full z-50">
             <NavbarWrapper />
